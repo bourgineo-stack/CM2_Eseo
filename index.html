@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mission RE:BOOT 2050 - Édition Prépa (Escape Game Énergie & Climat)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+  body { color: #f1f5f9; min-height: 100vh; transition: background 0.4s ease; }
+  .bg-intro { background: radial-gradient(circle at top, #0e7490, #020617 75%); }
+  .bg-map { background: radial-gradient(circle at top, #1e3a8a, #020617 75%); }
+  .bg-room { background: radial-gradient(circle at top, #155e75, #020617 75%); }
+  .bg-final { background: radial-gradient(circle at top, #7c2d12, #020617 75%); }
+  .bg-victory { background: radial-gradient(circle at top, #065f46, #020617 75%); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
+  .center-screen { display: flex; align-items: center; justify-content: center; padding: 24px; min-height: 100vh; }
+  h1 { font-size: 2rem; letter-spacing: -0.02em; }
+  h2 { font-size: 1.25rem; }
+  .card { background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.15); border-radius: 14px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); color: #fff; border-radius: 999px; padding: 5px 12px; font-size: .82rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .badge.cyan { background: rgba(34,211,238,.18); color: #a5f3fc; border: 1px solid rgba(34,211,238,.3); }
+  .badge.amber { background: rgba(251,191,36,.18); color: #fde68a; border: 1px solid rgba(251,191,36,.35); }
+  .badge.rose { background: rgba(244,63,94,.22); color: #fecdd3; border: 1px solid rgba(244,63,94,.4); }
+  .badge.emerald { background: rgba(52,211,153,.2); color: #a7f3d0; border: 1px solid rgba(52,211,153,.4); }
+  .badge.mono { font-family: "JetBrains Mono", Consolas, monospace; font-size: .95rem; }
+  .badge.alarm { background: rgba(244,63,94,.35); color: #ffe4e6; animation: pulse 1.1s infinite; }
+  @keyframes pulse { 50% { opacity: .5; } }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  .shake { animation: shake 0.35s ease; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; cursor: pointer; border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: .9rem; transition: all .15s; }
+  .btn.cyan { background: #22d3ee; color: #0f172a; }
+  .btn.cyan:hover:not(:disabled) { background: #67e8f9; transform: translateY(-1px); }
+  .btn.emerald { background: #34d399; color: #052e16; }
+  .btn.emerald:hover:not(:disabled) { background: #6ee7b7; transform: translateY(-1px); }
+  .btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,.22); color: #cbd5e1; }
+  .btn.ghost:hover:not(:disabled) { background: rgba(255,255,255,.08); color: #fff; }
+  .btn.hint { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.45); color: #fde68a; font-size: .8rem; padding: 6px 12px; white-space: nowrap; }
+  .btn.hint:hover:not(:disabled) { background: rgba(251,191,36,.18); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  input[type=text] { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 10px; padding: 10px 14px; font-size: 1rem; flex: 1; min-width: 150px; }
+  input[type=text]:focus { outline: 2px solid #22d3ee; border-color: transparent; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .story { color: rgba(255,255,255,.78); font-size: .92rem; line-height: 1.6; font-style: italic; margin: 10px 0; border-left: 3px solid #22d3ee; padding-left: 12px; }
+  .sub { color: #67e8f9; font-size: .88rem; font-weight: 500; }
+  .progress { height: 8px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; margin: 14px 0 20px; }
+  .progress > div { height: 100%; background: linear-gradient(90deg, #22d3ee, #34d399); transition: width .3s; }
+  .docgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 22px; }
+  .docbtn { background: rgba(15,23,42,.65); border: 1px solid rgba(255,255,255,.18); border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; color: #e2e8f0; font-size: .82rem; line-height: 1.35; transition: all .15s; display: flex; align-items: center; gap: 10px; }
+  .docbtn:hover { border-color: #fbbf24; background: rgba(251,191,36,.12); transform: translateY(-2px); }
+  .docbtn .ic { font-size: 1.6rem; flex-shrink: 0; }
+  .opt { display: block; width: 100%; text-align: left; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.16); color: #f1f5f9; border-radius: 10px; padding: 11px 14px; margin-bottom: 8px; cursor: pointer; font-size: .9rem; transition: all .15s; }
+  .opt:hover:not(:disabled) { border-color: rgba(34,211,238,.6); background: rgba(34,211,238,.08); }
+  .opt.sel { border-color: #22d3ee; background: rgba(34,211,238,.18); box-shadow: 0 0 12px rgba(34,211,238,.2); }
+  .opt.linked { border-color: #fbbf24; background: rgba(251,191,36,.12); }
+  .opt:disabled { cursor: default; }
+  .fb { border-radius: 10px; padding: 14px; font-size: .9rem; line-height: 1.55; margin-top: 14px; }
+  .fb.ok { border: 1px solid rgba(52,211,153,.45); background: rgba(52,211,153,.12); color: #d1fae5; }
+  .fb.ko { border: 1px solid rgba(244,63,94,.5); background: rgba(244,63,94,.15); color: #ffe4e6; }
+  .hintbox { border: 1px solid rgba(251,191,36,.45); background: rgba(251,191,36,.12); color: #fef3c7; border-radius: 10px; padding: 12px 14px; font-size: .88rem; margin-bottom: 14px; line-height: 1.5; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 740px) { .grid2 { grid-template-columns: 1fr; } }
+  .roomcard { text-align: left; border-radius: 14px; border: 1px solid rgba(255,255,255,.16); background: rgba(15,23,42,.65); padding: 18px; cursor: pointer; color: #f1f5f9; transition: all .18s; position: relative; }
+  .roomcard:hover { transform: translateY(-3px); border-color: rgba(34,211,238,.6); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  .roomcard.done { border-color: rgba(52,211,153,.55); background: rgba(6,78,59,.35); }
+  .roomcard.final { border-color: rgba(251,191,36,.65); background: rgba(120,53,15,.35); grid-column: 1 / -1; }
+  .roomcard.final.locked { opacity: .65; border-color: rgba(255,255,255,.15); background: rgba(15,23,42,.4); }
+  .modal-bg { position: fixed; inset: 0; background: rgba(2,6,23,.82); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+  .modal { background: #0f172a; border: 1px solid rgba(34,211,238,.35); border-radius: 14px; max-width: 720px; width: 100%; max-height: 86vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,.6); }
+  .modal-body { font-size: .92rem; line-height: 1.65; color: rgba(255,255,255,.9); }
+  .modal-body p { margin-bottom: 10px; }
+  .modal-body ul { padding-left: 20px; margin-bottom: 12px; }
+  .modal-body li { margin-bottom: 4px; }
+  .svg-box { background: rgba(2,6,23,.65); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 12px; margin: 12px 0; overflow-x: auto; }
+  .check { border-radius: 10px; padding: 11px 14px; border: 1px solid transparent; margin-bottom: 9px; font-size: .88rem; }
+  .check.ok { border-color: rgba(52,211,153,.5); background: rgba(52,211,153,.12); }
+  .check.ko { border-color: rgba(251,113,133,.5); background: rgba(251,113,133,.12); }
+  .slider-row { margin-bottom: 14px; background: rgba(255,255,255,.03); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.07); }
+  .slider-row .lbl { display: flex; justify-content: space-between; align-items: center; font-size: .88rem; margin-bottom: 6px; }
+  input[type=range] { width: 100%; cursor: pointer; }
+  .wheels { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+  .wheelcol { display: flex; flex-direction: column; align-items: center; }
+  .wbtn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; color: rgba(255,255,255,.75); cursor: pointer; font-size: .75rem; padding: 4px 12px; margin: 2px 0; transition: all .1s; }
+  .wbtn:hover:not(:disabled) { background: rgba(34,211,238,.2); color: #fff; border-color: #22d3ee; }
+  .wbtn:disabled { opacity: .2; cursor: default; }
+  .wface { width: 44px; height: 52px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(34,211,238,.75); border-radius: 8px; background: #020617; color: #67e8f9; font-family: "JetBrains Mono", Consolas, monospace; font-size: 1.4rem; font-weight: 700; box-shadow: 0 0 14px rgba(34,211,238,.2); user-select: none; }
+  .tag { color: #67e8f9; font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .vfbox { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .vfbox p { font-size: .9rem; flex: 1; min-width: 220px; }
+  .vfbtn { border: 1px solid rgba(255,255,255,.2); cursor: pointer; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: .8rem; background: rgba(255,255,255,.06); color: rgba(255,255,255,.75); transition: all .12s; }
+  .vfbtn.sel { background: #22d3ee; color: #0f172a; border-color: #22d3ee; }
+  .victory-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
+  @media (max-width: 600px) { .victory-stats { grid-template-columns: repeat(2, 1fr); } }
+  .victory-stats .num { font-size: 1.7rem; font-weight: 700; color: #67e8f9; font-family: monospace; }
+  .victory-stats .cap { font-size: .72rem; color: rgba(255,255,255,.65); margin-top: 2px; }
+  ul.debrief { list-style: disc; padding-left: 20px; font-size: .88rem; color: rgba(255,255,255,.85); line-height: 1.65; }
+  ul.debrief li { margin-bottom: 6px; }
+  .hlet { color: #fbbf24; font-weight: 800; text-shadow: 0 0 8px rgba(251,191,36,.75); padding: 0 1px; border-bottom: 1px dotted #fbbf24; }
+  .backlink { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; padding: 6px 12px; color: #e2e8f0; cursor: pointer; font-size: .85rem; font-weight: 500; }
+  .backlink:hover { background: rgba(255,255,255,.14); color: #fff; }
+  .puzzles-nav { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .pnav-pill { padding: 5px 12px; border-radius: 99px; font-size: .78rem; font-weight: 600; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.04); color: rgba(255,255,255,.5); }
+  .pnav-pill.done { border-color: rgba(52,211,153,.5); background: rgba(52,211,153,.15); color: #6ee7b7; }
+  .pnav-pill.curr { border-color: #22d3ee; background: rgba(34,211,238,.2); color: #fff; }
+  table.data-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .85rem; }
+  table.data-table th, table.data-table td { border: 1px solid rgba(255,255,255,.15); padding: 7px 10px; text-align: left; }
+  table.data-table th { background: rgba(34,211,238,.12); color: #a5f3fc; }
+  .formula { font-family: "JetBrains Mono", Consolas, monospace; background: rgba(255,255,255,.07); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #fbbf24; margin: 8px 0; font-size: .86rem; color: #fde68a; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+
+// ================= SCHEMAS SVG INTEGRES =================
+var SVG_SANKEY_FR = '<div class="svg-box"><svg viewBox="0 0 620 210" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif;font-size:11px;fill:#e2e8f0">'+
+  '<text x="10" y="18" fill="#67e8f9" font-weight="bold">FLUX D\'ÉNERGIE FRANCE 2019 (Sankey simplifié négaWatt - en TWh)</text>'+
+  '<rect x="15" y="35" width="120" height="145" rx="6" fill="#1e293b" stroke="#475569"/>'+
+  '<text x="25" y="55" font-weight="bold" fill="#fbbf24">Énergie Primaire</text>'+
+  '<text x="25" y="73" font-size="13" font-weight="bold">2 957 TWh</text>'+
+  '<text x="25" y="95" fill="#94a3b8">• Fossiles : 1 492</text>'+
+  '<text x="25" y="113" fill="#a78bfa">• Nucléaire : 1 142</text>'+
+  '<text x="25" y="131" fill="#34d399">• EnR : 323</text>'+
+  '<text x="25" y="160" font-size="10" fill="#cbd5e1">(EnR : 10% en 2019,</text>'+
+  '<text x="25" y="172" font-size="10" fill="#cbd5e1">13% en 2021)</text>'+
+  '<path d="M135 70 C 210 70, 210 55, 285 55" stroke="#f43f5e" stroke-width="24" fill="none" opacity="0.65"/>'+
+  '<path d="M135 125 C 230 125, 250 135, 420 135" stroke="#22d3ee" stroke-width="48" fill="none" opacity="0.65"/>'+
+  '<rect x="285" y="30" width="165" height="55" rx="6" fill="#3f1d28" stroke="#f43f5e"/>'+
+  '<text x="295" y="48" fill="#fda4af" font-weight="bold">Pertes &amp; autres usages</text>'+
+  '<text x="295" y="66" font-size="12" font-weight="bold" fill="#ffe4e6">969 TWh</text>'+
+  '<text x="295" y="79" font-size="9" fill="#fecdd3">864 pertes + ~105 non énergétique</text>'+
+  '<rect x="420" y="95" width="185" height="95" rx="6" fill="#0f291e" stroke="#34d399"/>'+
+  '<text x="432" y="115" fill="#6ee7b7" font-weight="bold">Consommation Finale</text>'+
+  '<text x="432" y="133" font-size="13" font-weight="bold">1 988 TWh (100%)</text>'+
+  '<text x="432" y="152" fill="#cbd5e1">• Chaleur : 841 TWh</text>'+
+  '<text x="432" y="167" fill="#cbd5e1">• Mobilité : 676 TWh</text>'+
+  '<text x="432" y="182" fill="#cbd5e1">• Élec. spécifique : 298 TWh</text>'+
+  '</svg></div>';
+
+var SVG_SANKEY_ENR = '<div class="svg-box"><svg viewBox="0 0 600 175" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif;font-size:11px;fill:#e2e8f0">'+
+  '<text x="10" y="18" fill="#67e8f9" font-weight="bold">BILAN DES ÉNERGIES RENOUVELABLES EN FRANCE (SDES - en TWh)</text>'+
+  '<rect x="15" y="32" width="195" height="130" rx="6" fill="#1e293b" stroke="#38bdf8"/>'+
+  '<text x="25" y="52" font-weight="bold" fill="#38bdf8">Production Primaire EnR : 326 TWh</text>'+
+  '<text x="25" y="76" fill="#67e8f9">• Hydro, éolien, PV : 105 TWh</text>'+
+  '<text x="25" y="100" fill="#4ade80">• EnR Thermiques (bois, PAC) : 199 TWh</text>'+
+  '<text x="25" y="124" fill="#fbbf24">• Biocarburants : 22 TWh</text>'+
+  '<text x="25" y="148" font-size="10" fill="#94a3b8">(+ Soldes importateurs &amp; pertes)</text>'+
+  '<path d="M210 95 L 355 95" stroke="#34d399" stroke-width="34" fill="none" opacity="0.5"/>'+
+  '<rect x="355" y="32" width="230" height="130" rx="6" fill="#0f291e" stroke="#34d399"/>'+
+  '<text x="368" y="52" font-weight="bold" fill="#6ee7b7">Conso. Finale Nette EnR : 299 TWh</text>'+
+  '<text x="368" y="76">• Électricité renouvelable : 101 TWh</text>'+
+  '<text x="368" y="98">• Chaleur (EnR thermiques) : 142 TWh</text>'+
+  '<text x="368" y="120">• Chaleur commercialisée : 20 TWh</text>'+
+  '<text x="368" y="142">• Transport (biocarburants) : 36 TWh</text>'+
+  '</svg></div>';
+
+var SVG_PWR = '<div class="svg-box"><svg viewBox="0 0 640 210" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif;font-size:11px;fill:#e2e8f0">'+
+  '<text x="10" y="18" fill="#67e8f9" font-weight="bold">SCHÉMA SYNOPTIQUE : RÉACTEUR À EAU PRESSURISÉE (PWR - 3 CIRCUITS FERMÉS)</text>'+
+  '<rect x="15" y="30" width="240" height="165" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>'+
+  '<text x="25" y="48" fill="#a5b4fc" font-weight="bold">Bâtiment Réacteur (Zone Nucléaire)</text>'+
+  '<rect x="35" y="80" width="75" height="95" rx="8" fill="#312e81" stroke="#f43f5e" stroke-width="2"/>'+
+  '<text x="45" y="115" fill="#fda4af" font-weight="bold">Cuve</text><text x="42" y="130" font-size="10">Fission U-235</text><text x="42" y="145" font-size="10">(300°C, 155b)</text>'+
+  '<rect x="155" y="65" width="80" height="110" rx="8" fill="#1e3a8a" stroke="#38bdf8" stroke-width="2"/>'+
+  '<text x="163" y="95" fill="#93c5fd" font-weight="bold">Générateur</text><text x="163" y="110" fill="#93c5fd" font-weight="bold">de Vapeur</text><text x="163" y="130" font-size="9">(Échangeur)</text>'+
+  '<path d="M110 100 L 155 100" stroke="#f43f5e" stroke-width="5"/><path d="M155 150 L 110 150" stroke="#fb923c" stroke-width="5"/>'+
+  '<text x="45" y="190" fill="#fda4af" font-size="10">[1] Circuit Primaire (eau sous pression, ne bout pas)</text>'+
+  '<rect x="275" y="30" width="350" height="165" rx="10" fill="#0f172a" stroke="#475569" stroke-width="2"/>'+
+  '<text x="285" y="48" fill="#67e8f9" font-weight="bold">Salle des Machines (Zone Non Nucléaire)</text>'+
+  '<polygon points="315,75 395,90 395,120 315,135" fill="#0284c7" stroke="#7dd3fc" stroke-width="2"/>'+
+  '<text x="330" y="110" font-weight="bold">Turbine</text>'+
+  '<rect x="425" y="82" width="90" height="45" rx="6" fill="#065f46" stroke="#34d399" stroke-width="2"/>'+
+  '<text x="437" y="108" fill="#a7f3d0" font-weight="bold">Alternateur</text>'+
+  '<line x1="395" y1="105" x2="425" y2="105" stroke="#fbbf24" stroke-width="4"/>'+
+  '<rect x="315" y="145" width="90" height="35" rx="6" fill="#164e63" stroke="#22d3ee" stroke-width="2"/>'+
+  '<text x="325" y="166" fill="#a5f3fc">Condenseur</text>'+
+  '<path d="M235 80 L 315 85" stroke="#38bdf8" stroke-width="4" fill="none"/><path d="M315 162 L 235 162" stroke="#38bdf8" stroke-width="4" fill="none"/>'+
+  '<text x="285" y="190" fill="#7dd3fc" font-size="10">[2] Circuit Secondaire (vapeur) | [3] Refroidissement (fleuve/mer)</text>'+
+  '<path d="M405 155 L 555 155" stroke="#34d399" stroke-width="3"/><path d="M555 170 L 405 170" stroke="#10b981" stroke-width="3"/>'+
+  '<text x="530" y="145" fill="#6ee7b7" font-size="10">Fleuve / Mer</text>'+
+  '</svg></div>';
+
+// ================= DONNEES DES SALLES (NIVEAU PREPA) =================
+var ROOMS = [
+{
+  id:"controle", code:"813", title:"1. Salle de contrôle", subtitle:"Diagnostic & Bilans énergétiques (France / Monde)", icon:"🖥️",
+  story:"2050. Blackout partiel sur le réseau européen. Le terminal central de la salle de contrôle exige un audit précis des flux d'énergie primaire et finale pour réinitialiser les capteurs. Les ingénieurs ont laissé trois dossiers sur la console.",
+  docs:[
+    { id:"sdes", label:"Dossier 1 : Flux France (Sankey négaWatt & SDES)", icon:"📊",
+      content: "<p><b>BILAN ÉNERGÉTIQUE DE LA FRANCE : PRIMAIRE vs FINALE</b></p>" + SVG_SANKEY_FR +
+      "<p><b>Distinction fondamentale :</b> L'énergie <b>primaire</b> est l'énergie brute disponible dans la nature avant transformation (2 957 TWh). L'énergie <b>finale</b> est celle effectivement livrée au consommateur (1 988 TWh) après les pertes de transformation (centrales thermiques/nucléaires), de stockage et de transport (environ 864 TWh). Le solde (~105 TWh) correspond aux usages non énergétiques (plastiques, engrais, chimie) et aux écarts statistiques.</p>" +
+      "<p><i>Ordre de grandeur récent (SDES, bilan 2024) : 2 577 TWh d'énergie primaire pour 1 552 TWh d'énergie finale.</i></p>" +
+      "<p>En France, le nucléaire pèse environ <b>40 %</b> de l'énergie primaire, et les EnR sont passées de 10 % (2019) à <b>13 %</b> (2021). La loi fixe un objectif de <b>33 % d'EnR dans l'énergie finale d'ici 2030</b>. La {{C}}onsommation finale reste globalement stable.</p>" +
+      SVG_SANKEY_ENR +
+      "<p><i>Attention au piège classique :</i> En France, les énergies renouvelables ne produisent pas que de l'électricité ! Sur 326 TWh de production primaire EnR, les EnR thermiques (bois-énergie, pompes à chaleur, géothermie) représentent 199 TWh, devant la filière électrique (105 TWh) et les biocarburants (22 TWh).</p>" },
+    { id:"aie", label:"Dossier 2 : Bilan Mondial 2022 (Rapport AIE)", icon:"🌍",
+      content: "<p><b>APPROVISIONNEMENT ÉNERGÉTIQUE MONDIAL (Total Energy Supply - AIE 2022)</b></p>" +
+      "<table class='data-table'><tr><th>Source d'énergie primaire</th><th>Part mondiale 2022</th><th>Catégorie</th></tr>" +
+      "<tr><td>Biomasse et déchets (Biofuels &amp; waste)</td><td><b>9,0 %</b></td><td>Renouvelable</td></tr>" +
+      "<tr><td>Nucléaire</td><td><b>4,5 %</b></td><td>Bas carbone (Fission)</td></tr>" +
+      "<tr><td>Éolien + Solaire + Géothermie</td><td><b>3,0 %</b></td><td>Renouvelable</td></tr>" +
+      "<tr><td>Hydroélectricité</td><td><b>2,5 %</b></td><td>Renouvelable</td></tr>" +
+      "<tr><td>Charbon + Pétrole + Gaz naturel</td><td><b>Reste du mix</b></td><td>Énergies fossiles</td></tr></table>" +
+      "<p>Total des énergies renouvelables dans le monde : <b>14,5 %</b> de l'énergie primaire.</p>" +
+      "<p>Pourquoi développer massivement EnR et nucléaire ? Parce qu'il faut impérativement sortir des énergies fossiles pour deux raisons majeures : le <b>Climat</b> (GES) et l'épuisement des <b>Ressources</b>.</p>" },
+    { id:"astreinte", label:"Dossier 3 : Note d'astreinte & Radio", icon:"📝",
+      content: "<p><b>NOTE DE L'INGÉNIEUR D'ASTREINTE</b></p>" +
+      "<p><b>Définition :</b> Une énergie renouvelable provient de sources naturelles qui se renouvellent à un rythme supérieur à celui de leur consommation.</p>" +
+      "<p><b>Pilotabilité vs Intermittence :</b></p><ul>" +
+      "<li><b>Sources PILOTABLES :</b> production ajustable à la demande (barrages avec réservoir, électronucléaire, biomasse, géothermie).</li>" +
+      "<li><b>Sources INTERMITTENTES :</b> production dépendante de la météo (solaire PV, éolien). Elles imposent du stockage ou un réseau stabilisé par des moyens pilotables.</li></ul>" +
+      "<div class='formula'>📡 <b>TRANSCRIPTION RADIO (02h17) :</b><br>« Ici le poste de contrôle. Pour déverrouiller le <b>Code d'accès de la Salle 1 (Contrôle)</b> au Dispatch Final, composez les 3 chiffres suivants :<br>- 1er chiffre : Part (en %) des énergies fossiles dans le monde en 2022, divisée par 10 et arrondie à l'entier inférieur.<br>- 2e et 3e chiffres : Part (en %) des EnR dans l'énergie primaire en France en 2021. »<br><br>« P.S. du standardiste, au contrôleur du réacteur (Salle 5) qui a encore égaré son code d'autorisation de divergence : je le lui ai redicté en toutes lettres, comme d'habitude : <b>UN - HUIT - QUATRE</b>. Ne le perdez plus. »</div>" }
+  ],
+  puzzles:[
+    { kind:"code", q:"VERROU 1 (Calcul d'ingénieur - France) : D'après les deux diagrammes de Sankey (Dossier 1), calculez :\n• Les 2 premiers chiffres : Le rendement global du système énergétique français (Consommation finale / Énergie primaire totale, en % arrondi à l'entier le plus proche).\n• Les 2 derniers chiffres : La part des EnR thermiques (199 TWh) dans la production primaire EnR française (326 TWh), en % arrondi à l'entier le plus proche.",
+      answer:"6761", placeholder:"4 chiffres",
+      hint:"Un rendement, c'est toujours ce qui sort divisé par ce qui entre. Les deux valeurs dont vous avez besoin sont dans les encadrés du premier Sankey ; pour la seconde partie, cherchez la ligne « EnR thermiques » dans le second.",
+      explain:"Exact ! 67 % (1988 / 2957 TWh : près d'un tiers de l'énergie primaire est perdu en transformation, surtout en chaleur dans les centrales) et 61 % (199 / 326 TWh : le bois et la chaleur renouvelable pèsent bien plus lourd que l'éolien et le PV en France !)." },
+    { kind:"order", q:"VERROU 2 (Hiérarchie mondiale) : Classez ces filières par part DÉCROISSANTE dans l'approvisionnement énergétique primaire mondial en 2022.",
+      items:["Biomasse et déchets","Nucléaire","Éolien + Solaire + Géothermie","Hydraulique"],
+      hint:"Le tableau de l'AIE (Dossier 2) contient la réponse. Piège classique : la filière renouvelable la plus importante au niveau mondial n'est ni le solaire ni l'éolien.",
+      explain:"Monde 2022 : Biomasse (9 %) > Nucléaire (4,5 %) > Éolien+Solaire (3 %) > Hydraulique (2,5 %). L'ensemble EnR (14,5 %) + Nucléaire (4,5 %) ne fait que 19 % : les fossiles représentent encore 81 % de l'énergie primaire mondiale !" },
+    { kind:"code", q:"VERROU 3 (Bilan Mondial Fossiles) : En additionnant toutes les sources décarbonées mondiales en 2022 (Dossier 2), déduisez la part exacte (en %, multipliée par 10 pour supprimer la virgule) que représentent encore les ÉNERGIES FOSSILES dans le monde (ex: pour 75,5 % -> composez 755).",
+      answer:"810", placeholder:"3 chiffres",
+      hint:"Le tableau ne donne pas directement la part des fossiles : additionnez tout ce qui n'est pas fossile, puis travaillez par complément à 100 %.",
+      explain:"81,0 % (810) ! Malgré la croissance rapide du solaire et de l'éolien, plus de 4/5e de l'énergie primaire mondiale provient toujours du charbon, du pétrole et du gaz." }
+  ]
+},
+{
+  id:"solaire", code:"371", title:"2. Le toit solaire", subtitle:"Solaire photovoltaïque, thermique & stockage", icon:"☀️",
+  story:"Le data center de Lyon doit basculer sur son installation solaire autonome avant la coupure réseau. L'onduleur hybride demande un recalibrage complet des surfaces de capteurs et du cycle de batteries.",
+  docs:[
+    { id:"fiche", label:"Dossier 1 : Technologies PV & Thermique", icon:"🔌",
+      content: "<p><b>RESSOURCE &amp; CONVERSION SOLAIRE</b></p>" +
+      "<p>Chaque jour, la Terre reçoit <b>10 000 fois</b> plus d'énergie solaire que la consommation énergétique totale de l'h{{U}}manité.</p>" +
+      "<p><b>Comparatif des technologies installées sur le site de Lyon :</b></p>" +
+      "<table class='data-table'><tr><th>Technologie</th><th>Vecteur produit</th><th>Rendement (ordre de grandeur)</th><th>Situation du marché</th></tr>" +
+      "<tr><td><b>Solaire Thermique</b> (capteurs d'eau chaude)</td><td>Chaleur</td><td><b>~70 %</b></td><td>Chauffe-eau, réseaux de chaleur</td></tr>" +
+      "<tr><td><b>PV Silicium Monocristallin</b> (Mono-Si)</td><td>Électricité</td><td><b>20 à 23 %</b> (modules commerciaux)</td><td>Technologie très largement dominante aujourd'hui</td></tr>" +
+      "<tr><td><b>PV Silicium Polycristallin</b> (Multi-Si)</td><td>Électricité</td><td><b>15 à 18 %</b></td><td>En voie de disparition</td></tr>" +
+      "<tr><td><b>PV Couches minces</b> (CdTe, amorphe)</td><td>Électricité</td><td><b>7 à 19 %</b> selon la filière</td><td>Marché de niche</td></tr>" +
+      "<tr><td><i>Cellules multijonctions sous concentration (recherche)</i></td><td>Électricité</td><td><i>Records labo : <b>~47 %</b></i></td><td><i>Spatial / laboratoire</i></td></tr></table>" +
+      "<p><b>Chaîne de fabrication du PV silicium cristallin :</b> Matière première (Silicium) → Lingot → Découpe du lingot → Découpe en tranches (wafers) → Cellule → Module → Système.</p>" +
+      "<p><b>Limites &amp; Perspectives :</b> Le thermique a un bien meilleur rendement que le PV mais le stockage de la chaleur est complexe. Perspectives PV : hausse des rendements, stockage (batteries, hydrogène) et bâtiments à énergie positive.</p>" },
+    { id:"meteo", label:"Dossier 2 : Relevé journalier & Dimensionnement", icon:"📈",
+      content: "<p><b>PROTOCOLE D'EXPLOITATION - 12 JANVIER (DATA CENTER LYON)</b></p>" +
+      "<div class='formula'><b>Paramètres physiques du toit de Lyon :</b><br>• Irradiation solaire reçue par m² de toiture sur la journée : E<sub>sol</sub> = 4,0 kWh/m².<br>• Rendement des panneaux PV Monocristallins installés : η<sub>PV</sub> = 20 %.<br>• Rendement des capteurs Solaires Thermiques : η<sub>th</sub> = 70 %.</div>" +
+      "<p><b>Chronologie du relevé du 12 janvier :</b></p><ul>" +
+      "<li><b>06h00 :</b> Production PV nulle. L'ingénieur estime la demande du jour et l'ensoleillement prévu.</li>" +
+      "<li><b>07h30 :</b> Lever du soleil, démarrage de l'onduleur PV.</li>" +
+      "<li><b>12h30 :</b> Pic de production PV : le bâtiment est autoalimenté et l'excédent recharge les batteries.</li>" +
+      "<li><b>19h00 :</b> Chute de la production PV, bascule sur la décharge des batteries.</li>" +
+      "<li><b>02h00 (J+1) :</b> Batteries vides, bascule automatique de secours sur le réseau national (nucléaire / hydro).</li></ul>" +
+      "<div class='formula'>📡 <b>MÉMO INTER-SALLES :</b> Le code de désamorçage du Toit Solaire (Salle 2) a été archivé sur le <i>Bordereau de maintenance</i> rangé dans le container de la <b>Plaine des Vents (Salle 3)</b>.</div>" }
+  ],
+  puzzles:[
+    { kind:"code", q:"VERROU 1 (Dimensionnement PV) : Le Data Center a besoin de produire 160 kWh d'électricité solaire par jour. Avec une irradiation de 4,0 kWh/m²/jour et des panneaux Monocristallins au rendement nominal de 20 %, quelle surface minimale de panneaux (en m²) faut-il installer ?",
+      answer:"200", placeholder:"3 chiffres (m²)",
+      hint:"Commencez par calculer ce que produit 1 m² de panneau en une journée (irradiation × rendement), puis demandez-vous combien de m² il en faut.",
+      explain:"200 m² ! Chaque m² capte 4 kWh mais n'en convertit que 20 % en électricité, soit 0,8 kWh/m²/j (160 / 0,8 = 200 m²). Et c'est une journée de janvier : en été, l'irradiation est 2 à 3 fois plus forte." },
+    { kind:"code", q:"VERROU 2 (Thermique vs PV) : Composez les 4 chiffres suivants :\n• 2 premiers chiffres : Combien de kWh de CHALEUR produisent 20 m² de capteurs solaires thermiques (rendement 70 %) sous la même irradiation de 4,0 kWh/m² ?\n• 2 derniers chiffres : Quelle surface (en m²) de panneaux PV monocristallins (20 %) faudrait-il pour produire la même quantité d'énergie, sous forme d'électricité cette fois ?",
+      answer:"5670", placeholder:"4 chiffres",
+      hint:"Même raisonnement qu'au verrou 1 : énergie = surface × irradiation × rendement. Calculez d'abord la chaleur produite, puis inversez la formule avec le rendement du PV.",
+      explain:"56 kWh de chaleur sur 20 m², contre 70 m² de PV pour la même énergie : le thermique récupère 3,5 fois plus d'énergie par m². Mais attention, 1 kWh de chaleur à 60 °C n'a pas la même valeur d'usage qu'1 kWh d'électricité (qui peut alimenter une pompe à chaleur et produire 3 kWh de chaleur...)." },
+    { kind:"order", q:"VERROU 3 (Gestion de l'intermittence) : Reconstituez dans l'ordre chronologique les 4 étapes de la journée du 12 janvier sur le réseau du bâtiment (Dossier 2).",
+      items:["Prévision de la demande et de l'ensoleillement par l'ingénieur","Pic de production PV, autoalimentation et charge des batteries","Chute du rayonnement, sollicitation des batteries de stockage","Batteries déchargées, bascule sur le réseau pilotable (nucléaire/hydro)"],
+      hint:"La chronologie détaillée est dans le relevé du Dossier 2. Pensez au cycle soleil puis nuit.",
+      explain:"Cycle validé ! Sans stockage massif ni réseau pilotable en secours pour la fin de nuit, une source intermittente seule conduit au blackout." }
+  ]
+},
+{
+  id:"eolien", code:"642", title:"3. La plaine des vents", subtitle:"Aérodynamique éolienne terrestre & offshore", icon:"🌬️",
+  story:"Les parcs éoliens terrestre et offshore se sont mis en drapeau lors de la tempête. Pour réarmer les générateurs, l'automate impose de vérifier les lois de puissance cinétique du vent et de restaurer le firmware corrompu.",
+  docs:[
+    { id:"terrestre", label:"Dossier 1 : Physique éolienne & Parc Terrestre", icon:"📄",
+      content: "<p><b>ORIGINE &amp; LOI PHYSIQUE DE L'ÉOLIEN</b></p>" +
+      "<p>Origine : le vent est généré par le {{R}}échauffement inégal de l'atmosphère par le Soleil (c'est donc une énergie solaire indirecte). Les pales convertissent l'énergie cinétique du vent en électricité via un générateur.</p>" +
+      "<div class='formula'><b>Loi de puissance cinétique du vent :</b><br>La puissance électrique extractible par une éolienne est proportionnelle à la surface balayée S = π R² et au <b>CUBE de la vitesse du vent v</b> :<br>P = ½ × C<sub>p</sub> × ρ × S × v³<br><i>Conséquence :</i> Si la vitesse du vent double (× 2), la puissance disponible est multipliée par 2³ = 8 !</div>" +
+      "<p><b>Éolien Terrestre :</b> installé sur plaines, montagnes ou côtes. <b>Avantages :</b> technologie mature, coûts en baisse, zéro émission de CO₂ en fonctionnement. <b>Limites :</b> occupation des sols, impact visuel, bruit, mortalité avifaune (oiseaux et chauves-souris), intermittence.</p>" },
+    { id:"offshore", label:"Dossier 2 : Parc Éolien Offshore (En mer)", icon:"🌊",
+      content: "<p><b>PARC ÉOLIEN OFFSHORE (POSÉ ET FLOTTANT)</b></p>" +
+      "<p>Installées en mer, où les vents sont plus réguliers et <b>puissants</b>.</p>" +
+      "<p><b>Comparatif de mesure sur site :</b> Une éolienne terrestre soumise à un vent de v₁ = 5 m/s délivre 500 kW (bien en dessous de sa puissance nominale, atteinte vers 12 m/s). En mer, le vent moyen atteint v₂ = 10 m/s, soit une vitesse 2 fois supérieure.</p>" +
+      "<p><i>Limite physique (Betz) : une éolienne ne peut jamais récupérer plus de 59 % de l'énergie cinétique du vent qui traverse son rotor (C<sub>p</sub> ≤ 0,59).</i></p>" +
+      "<p><b>Avantages offshore :</b> facteur de charge bien supérieur (vent plus constant et rapide), vaste espace disponible. <b>Inconvénients :</b> coûts d'installation très élevés (fondations sous-marines ou flotteurs, raccordement), maintenance complexe en mer.</p>" +
+      "<div class='formula'>📡 <b>MÉMO INTER-SALLES :</b> Le code de sécurité de la Plaine des Vents (Salle 3) est inscrit en bas du <i>Certificat de la chaufferie biomasse</i> situé dans la <b>Vallée Hydraulique (Salle 4)</b>.</div>" },
+    { id:"bordereau", label:"Dossier 3 : Bordereau de maintenance (Archives)", icon:"🧾",
+      content: "<p><b>BORDEREAU D'INTERVENTION INTER-SITES</b></p>" +
+      "<p><b>Objet :</b> Dépannage de l'onduleur du <b>Toit Solaire de Lyon (Salle 2)</b> le mois dernier.</p>" +
+      "<p>Compte-rendu : <b>3</b> heures d'intervention sur la toiture, <b>7</b> techniciens mobilisés, <b>1</b> redémarrage complet du BMS.</p>" +
+      "<p><i>Note griffonnée : « Le code de désamorçage à 3 chiffres de la Salle 2 (Toit Solaire) correspond exactement aux trois chiffres de ce compte-rendu pris dans l'ordre. »</i></p>" }
+  ],
+  puzzles:[
+    { kind:"code", q:"VERROU 1 (Loi cubique du vent) : Sur terre, une éolienne soumise à un vent de 5 m/s délivre 500 kW. En mer, on installe une machine dont les pales sont √2 fois plus longues (surface balayée S doublée), sous un vent de 10 m/s. À coefficient C_p identique, quelle puissance (en kW) développe-t-elle ?",
+      answer:"8000", placeholder:"4 chiffres (kW)",
+      hint:"Écrivez le rapport P_mer / P_terre à partir de P = ½·Cp·ρ·S·v³ : tout ce qui est identique disparaît. Il ne reste que le rapport des surfaces et celui des vitesses (attention à l'exposant).",
+      explain:"8 000 kW = 8 MW ! P ∝ S·v³ : doubler la vitesse multiplie la puissance par 2³ = 8, doubler la surface par 2 (500 kW × 16). C'est l'ordre de grandeur des éoliennes offshore actuelles, et c'est pour cela que les sites très venteux sont si recherchés." },
+    { kind:"vf", q:"VERROU 2 (Diagnostic Vrai / Faux) : Validez la séquence exacte des 4 affirmations techniques.",
+      statements:[
+        "Les éoliennes offshore coûtent moins cher à installer que les terrestres grâce à l'absence de terrassement.",
+        "L'énergie éolienne provient du réchauffement inégal de l'atmosphère par le Soleil.",
+        "Lorsque la vitesse du vent est divisée par 2, la puissance éolienne disponible est divisée par 8.",
+        "L'éolien terrestre a un impact nul sur les écosystèmes locaux (oiseaux, chauves-souris) et le paysage."
+      ],
+      answers:[false,true,true,false],
+      hint:"Deux affirmations sont vraies, deux sont fausses. Relisez les « limites » listées dans les deux dossiers, et appliquez la loi en v³ avec un facteur 1/2.",
+      explain:"Séquence validée ! La loi en v³ explique à la fois la très haute rentabilité des sites venteux offshore et la chute brutale de production dès que le vent faiblit (intermittence)." },
+    { kind:"usb", q:"VERROU 3 (Clé USB de maintenance corrompue) : Reconstituez dans l'ordre exact la phrase de synthèse du firmware.",
+      words:["le","vent","est","une","énergie","solaire","indirecte"],
+      answer:"le vent est une énergie solaire indirecte",
+      hint:"Relisez la ligne « Origine » du Dossier 1 : d'où vient l'énergie qui met l'air en mouvement ?",
+      explain:"Exact : le rayonnement solaire chauffe inégalement l'équateur et les pôles ainsi que la terre et la mer, mettant les masses d'air en mouvement." }
+  ]
+},
+{
+  id:"vallee", code:"913", title:"4. La vallée hydraulique", subtitle:"Hydroélectricité, Biomasse & Géothermie", icon:"💧",
+  story:"Les vannes de la vallée et la chaufferie biomasse sont isolées. Vous devez réattribuer les fiches d'exploitation aux bonnes centrales et vérifier l'équilibre carbone de la vallée.",
+  docs:[
+    { id:"registre", label:"Dossier 1 : Registre Hydroélectrique", icon:"🗂️",
+      content: "<p><b>REGISTRE DES TROIS CENTRALES HYDRAULIQUES DE LA VALLÉE</b></p>" +
+      "<p>Principe : convertir l'énergie mécanique de l'eau (r{{I}}vières ou chutes) en électricité via des turbines. C'est la 1re source d'électricité renouvelable historique dans le monde.</p>" +
+      "<ul><li><b>Installation Alpha :</b> Retenue d'eau dans un grand réservoir de barrage pour la relâcher à la demande. Production prévisible, continue et stockable (STEP). <i>Inconvénients :</i> coûts initiaux très élevés, inondation de vallées, perturbation majeure des écosystèmes aquatiques.</li>" +
+      "<li><b>Installation Bêta :</b> Utilise directement le courant de la rivière sans réservoir de stockage. Impact environnemental moindre, mais production directement dépendante du débit instantané (et donc des précipitations).</li>" +
+      "<li><b>Installation Gamma :</b> Projets à petite échelle de puissance strictement inférieure à <b>10 MW</b>, souvent en zone rurale, adaptés aux besoins locaux avec un faible impact.</li></ul>" },
+    { id:"biomasse", label:"Dossier 2 : Certificat Chaufferie Biomasse", icon:"🔥",
+      content: "<p><b>CERTIFICAT D'EXPLOITATION - BIOMASSE &amp; BIOGAZ</b></p>" +
+      "<p><b>Origine &amp; Principe :</b> Matière organique (bois, déchets agricoles et forestiers, biogaz). Brûler ou décomposer cette matière produit de la chaleur, de l'électricité ou des carburants.</p>" +
+      "<div class='formula'><b>Équation du cycle carbone de la biomasse :</b><br>La combustion du bois émet du CO₂ à la cheminée (environ 400 kg de CO₂/MWh brûlé). Pourtant, elle est comptabilisée comme <b>neutre en carbone</b> à une condition stricte : que le flux de prélèvement annuel F<sub>coupe</sub> soit inférieur ou égal au flux de régénération par photosynthèse de la forêt F<sub>croissance</sub> (F<sub>coupe</sub> ≤ F<sub>croissance</sub>). Sinon, il y a déforestation nette !</div>" +
+      "<p><b>Avantages :</b> Production <b>stable et pilotable</b> (contrairement au PV/éolien) et valorisation des déchets.</p>" +
+      "<p><i>Note de service : Le code de sécurité de la <b>Plaine des Vents (Salle 3)</b> est <b>642</b>.</i></p>" },
+    { id:"geothermie", label:"Dossier 3 : Étude Géothermique profonde", icon:"🌋",
+      content: "<p><b>ÉTUDE GÉOTHERMIQUE DU SOUS-SOL</b></p>" +
+      "<p><b>Principe :</b> Exploiter la chaleur interne de la Terre stockée dans les roches/nappes souterraines.</p>" +
+      "<ul><li><b>Géothermie Haute Température (> 150 °C) :</b> Production d'électricité, limitée aux zones volcaniques ou à fort gradient thermique.</li>" +
+      "<li><b>Géothermie Basse Température :</b> Chauffage urbain et pompes à chaleur (PAC).</li></ul>" +
+      "<p><b>Gradient géothermique local :</b> Dans cette vallée non volcanique, la température du sol est de 15 °C en surface et augmente de 30 °C par kilomètre de profondeur (+3 °C tous les 100 m).</p>" +
+      "<p><b>Bilan :</b> Source continue et fiable (non intermittente), faible impact en surface, mais localisation restreinte, coûts de forage élevés et risques de <b>sismicité induite</b>.</p>" +
+      "<div class='formula'>📡 <b>MÉMO INTER-SALLES :</b> Le code de désamorçage de la Vallée Hydraulique (Salle 4) se trouve dans le <i>Dossier déchets et sûreté</i> du <b>Cœur du Réacteur (Salle 5)</b>.</div>" }
+  ],
+  puzzles:[
+    { kind:"pairs", q:"VERROU 1 (Typologie hydraulique) : Associez chaque type d'installation hydraulique à ses caractéristiques techniques exactes.",
+      pairs:[
+        { left:"Barrage avec réservoir (Lac)", right:"Stockage potentiel et production pilotable à la demande, mais inondation de terres et fort impact écologique" },
+        { left:"Centrale au fil de l'eau", right:"Pas de réservoir, impact environnemental moindre, mais production subissant les variations de débit du cours d'eau" },
+        { left:"Petite hydroélectricité", right:"Puissance installée inférieure à 10 MW en zone rurale pour les besoins locaux" }
+      ],
+      hint:"Le registre du Dossier 1 décrit trois installations anonymes (Alpha, Bêta, Gamma). Identifiez d'abord celle qui a un réservoir, puis celle qui est définie par un seuil de puissance.",
+      explain:"Associations exactes ! L'hydroélectricité combine longue durée de vie et grande flexibilité, surtout grâce aux barrages à réservoirs." },
+    { kind:"code", q:"VERROU 2 (Calculs Biomasse & Géothermie) : Composez les 3 chiffres suivants :\n• 1er chiffre : La profondeur minimale de forage (en km, chiffre entier) nécessaire dans cette vallée (surface à 15°C, gradient de +30°C/km) pour atteindre exactement 165°C et produire de l'électricité géothermique.\n• 2e et 3e chiffres : Le seuil maximal de puissance (en MW) définissant la 'petite hydroélectricité'.",
+      answer:"510", placeholder:"3 chiffres",
+      hint:"Pour la profondeur, ne partez pas de 0 °C : la surface est déjà à 15 °C. Le seuil de puissance est dans le registre hydraulique (Dossier 1).",
+      explain:"5 km de profondeur (15°C + 5 × 30°C = 165°C, d'où le coût élevé et le risque de sismicité induite hors zone volcanique !) et 10 MW pour la petite hydroélectricité." },
+    { kind:"text", q:"VERROU 3 (Alerte Écologique Biomasse) : Si l'on brûle la biomasse forestière plus vite qu'elle ne se régénère par photosynthèse (F_coupe > F_croissance), le bilan carbone n'est plus neutre et on provoque un phénomène majeur. Lequel ? (1 seul mot, au singulier).",
+      answer:"deforestation", placeholder:"Un mot (sans article)",
+      hint:"Le Certificat Biomasse (Dossier 2) nomme ce phénomène à la fin de l'équation du cycle carbone.",
+      explain:"La déforestation ! La biomasse n'est renouvelable et neutre en carbone que si la gestion forestière garantit une repousse au moins égale aux prélèvements." }
+  ]
+},
+{
+  id:"reacteur", code:"184", title:"5. Le cœur du réacteur", subtitle:"Électronucléaire, Thermodynamique & Cycle du combustible", icon:"☢️",
+  story:"Le réacteur PWR de la tranche n°4 est en arrêt à froid. Pour autoriser la divergence, l'Autorité de Sûreté exige la vérification complète du cycle thermodynamique et des réserves mondiales d'uranium.",
+  docs:[
+    { id:"manuel", label:"Dossier 1 : Schéma PWR & Thermodynamique", icon:"📕",
+      content: "<p><b>PRINCIPE D'UNE CENTRALE NUCLÉAIRE À EAU PRESSURISÉE (PWR)</b></p>" + SVG_PWR +
+      "<p><b>1. Fission &amp; Réaction en chaîne :</b> Un noyau lourd d'<b>Uranium-235</b> bombardé par un neutron se scinde en libérant une énorme quantité de chaleur et 2 à 3 nouveaux neutrons qui provoquent d'autres fissions (réaction en chaîne contrôlée).</p>" +
+      "<p><b>2. Les 3 circuits fermés indépendants :</b></p><ul>" +
+      "<li><b>Circuit Primaire :</b> L'eau chauffée dans la cuve est maintenue sous haute pression (155 bars) pour <b>éviter son ébullition</b>. Elle cède sa chaleur au générateur de vapeur.</li>" +
+      "<li><b>Circuit Secondaire :</b> L'eau non radioactive s'y transforme en vap{{E}}ur haute pression, fait tourner la <b>turbine</b> couplée à l'<b>alternateur</b>, puis repasse à l'état liquide dans le <b>condenseur</b>.</li>" +
+      "<li><b>Circuit de Refroidissement :</b> Alimenté par un fleuve ou la mer (ou aéroréfrigérants) pour refroidir le condenseur.</li></ul>" +
+      "<div class='formula'><b>Rendement thermodynamique (Carnot / Rankine) :</b> Une tranche PWR qui développe une puissance thermique de P<sub>th</sub> = 3 000 MW<sub>th</sub> dans le cœur délivre une puissance électrique nette de P<sub>el</sub> = 1 000 MW<sub>e</sub> sur le réseau (le reste est dissipé dans le condenseur).</div>" },
+    { id:"pwr", label:"Dossier 2 : Filières PWR, BWR, 4e Génération", icon:"📖",
+      content: "<p><b>COMPARATIF DES FILIÈRES DE RÉACTEURS</b></p><ul>" +
+      "<li><b>PWR (Pressurized Water Reactor) :</b> Filière la plus répandue au monde (100 % du parc français). L'eau ne bout pas dans le réacteur.</li>" +
+      "<li><b>BWR (Boiling Water Reactor) :</b> Utilisé aux USA et au Japon (ex: Fukushima). L'eau bout directement dans le cœur du réacteur et la vapeur va directement à la turbine (pas de générateur de vapeur).</li>" +
+      "<li><b>Réacteurs de 4e génération &amp; Surgénérateurs :</b> Réacteurs à neutrons rapides (RNR) ou à sels fondus. Les <b>surgénérateurs</b> produisent plus de matière fissile qu'ils n'en consomment en transmutant des isotopes fertiles abondants (<b>Uranium-238</b> ou <b>Thorium-232</b>). <i>Avantages :</i> multiplie par plus de 50 la durée des réserves et permet de réutiliser/réduire les déchets actuels. <i>Limites :</i> technologies complexes et coûteuses.</li></ul>" },
+    { id:"uranium", label:"Dossier 3 : Inventaire Uranium & Densité", icon:"⚖️",
+      content: "<p><b>RESSOURCE URANIFÈRE &amp; DENSITÉ ÉNERGÉTIQUE (DONNÉES BRUTES)</b></p>" +
+      "<div class='formula'><b>Données mondiales (ordres de grandeur) :</b><br>• Production minière d'uranium naturel en 2022 : ~49 000 tonnes/an.<br>• Besoins annuels des réacteurs du monde : C ≈ 62 000 tonnes/an (l'écart est comblé par des stocks et des matières recyclées).<br>• Ressources identifiées récupérables (coût &lt; 260 $/kg) : R ≈ 8 000 000 tonnes (8 Mt).</div>" +
+      "<div class='formula'><b>Densité énergétique : attention aux comparaisons !</b><br>• Fission complète d'1 kg d'U-235 pur : ~2 millions de fois l'énergie d'1 kg de pétrole (10⁶).<br>• Mais dans un réacteur à eau pressurisée, l'uranium naturel ne contient que 0,7 % d'U-235 et le combustible n'est que partiellement « brûlé » : 1 kg d'uranium naturel fournit environ 10 tep, soit ~10 000 fois (10⁴) l'énergie d'1 kg de pétrole.</div>" +
+      "<p><b>Atouts opérationnels :</b> Production continue 24h/24, pilotable (suivi de charge), très faibles émissions de CO₂ sur le cycle de vie.</p>" },
+    { id:"dechets", label:"Dossier 4 : Déchets, Sûreté & Géopolitique", icon:"⚠️",
+      content: "<p><b>DÉCHETS RADIOACTIFS, ACCIDENTS &amp; TRAJECTOIRES NATIONALES</b></p>" +
+      "<p><b>Déchets :</b> Les déchets de haute activité restent dangereux pendant des milliers d'années. En France, le projet Cigéo prévoit un stockage géologique profond à <b>Bure</b> (Meuse).</p>" +
+      "<p><b>Accidents majeurs :</b> Tchernobyl (1986) et Fukushima (2011). Coûts de construction très élevés et délais de plusieurs décennies.</p>" +
+      "<p><b>Trajectoires contrastées :</b> La <b>France</b> produit ~70 % de son électricité via le nucléaire ; l'<b>Allemagne</b> est sortie du nucléaire après Fukushima en misant sur les EnR ; la <b>Chine</b> construit massivement de nouveaux réacteurs.</p>" +
+      "<div class='formula'>📡 <b>MÉMOS DE DÉSAMORÇAGE :</b><br>• Le code de désamorçage de la <b>Vallée Hydraulique (Salle 4)</b> est <b>913</b>.<br>• Le code de désamorçage du <b>Cœur du Réacteur (Salle 5)</b> a été dicté par radio à 02h17 dans la <i>Note d'astreinte</i> de la <b>Salle 1 (Salle de contrôle)</b>.</div>" }
+  ],
+  puzzles:[
+    { kind:"order", q:"VERROU 1 (Chaîne thermodynamique PWR) : Remettez dans l'ordre exact le parcours du flux d'énergie dans une centrale à eau pressurisée (PWR).",
+      items:[
+        "La fission de l'U-235 chauffe l'eau primaire sous haute pression (155 bars) sans ébullition",
+        "L'eau primaire transfère sa chaleur à un second circuit d'eau qui se vaporise",
+        "La vapeur haute pression entraîne un ensemble tournant qui produit l'électricité",
+        "La vapeur épuisée est refroidie par l'eau du fleuve ou de la mer et redevient liquide"
+      ],
+      hint:"Suivez le schéma synoptique du Dossier 1 de gauche à droite, en partant de l'endroit où la chaleur est produite.",
+      explain:"Parcours sans faute ! Contrairement au BWR où l'eau bout dans le cœur, le PWR isole l'eau radioactive dans le circuit primaire fermé." },
+    { kind:"code", q:"VERROU 2 (Calculs de Réserves & Thermodynamique) : Calculez à partir des données brutes des Dossiers 1 et 3 :\n• Les 2 premiers chiffres : Le rendement électrique d'une tranche PWR (Puissance électrique 1000 MWe / Puissance thermique 3000 MWth, en % arrondi à l'entier).\n• Les 3 derniers chiffres : L'autonomie des ressources identifiées d'uranium au rythme des besoins actuels des réacteurs, en années (tolérance ± 3 ans).",
+      answer:"33129", placeholder:"5 chiffres", tol:3,
+      hint:"Le rendement se lit dans l'encadré thermodynamique du Dossier 1. Pour l'autonomie, divisez un stock par un flux, et vérifiez que vous prenez bien les besoins des réacteurs et non la production minière.",
+      explain:"Bravo ! 33 % de rendement (les 2/3 de la chaleur de fission partent dans le condenseur, donc dans le fleuve ou les tours de refroidissement) et environ 130 ans de ressources identifiées à consommation constante. Ce chiffre dépend du prix accepté et baisserait si le parc mondial grandit : d'où l'intérêt des réacteurs de 4e génération capables d'utiliser l'U-238." },
+    { kind:"code", q:"VERROU 3 (Ordres de grandeur & Isotopes) : Composez les 4 chiffres suivants :\n• 1er chiffre : L'exposant X tel que 1 kg d'URANIUM NATUREL utilisé dans un réacteur actuel fournit environ 10^X fois l'énergie d'1 kg de pétrole.\n• 3 derniers chiffres : Le nombre de masse de l'isotope fertile de l'uranium utilisé dans les surgénérateurs (Uranium-XXX).",
+      answer:"4238", placeholder:"4 chiffres",
+      hint:"Le Dossier 3 donne deux facteurs de densité très différents : lequel correspond à de l'uranium naturel dans un réacteur réel ? L'isotope fertile est cité dans le Dossier 2.",
+      explain:"4 et 238 ! Le fameux « un million de fois plus dense » ne vaut que pour de l'U-235 pur entièrement fissionné ; en pratique on est autour de 10⁴, ce qui reste énorme. L'U-238 représente 99,3 % de l'uranium naturel et n'est valorisable que dans des réacteurs à neutrons rapides." },
+    { kind:"text", q:"VERROU 4 (Gestion des déchets HA-VL) : Dans quelle commune française (Meuse) est implanté le laboratoire et projet de stockage géologique profond Cigéo ?",
+      answer:"bure", placeholder:"Nom de la commune",
+      hint:"Le Dossier 4 parle des déchets dès son premier paragraphe.",
+      explain:"Bure (en Meuse), à 500 mètres de profondeur dans une couche d'argile imperméable." }
+  ]
+}
+];
+
+// ================= DONNEES DU SIMULATEUR DISPATCH 2050 =================
+// Demarrage volontairement en deficit (blackout) pour forcer une vraie reflexion d'ingenieur
+// Modele pedagogique simplifie, calibre pour que PLUSIEURS familles de mix soient possibles
+// (de 0 a 70 GW de nucleaire), avec des compromis cout / emprise / faisabilite industrielle,
+// dans l'esprit des 6 scenarios RTE Futurs energetiques 2050. Valeurs = ordres de grandeur.
+// fixed : cout annualise en M EUR par GW installe et par an ; vc : cout variable (combustible) en EUR/MWh
+// cf : facteur de charge annuel ; w / s : part de la puissance disponible lors des stress-tests hiver / ete
+var MIX_SOURCES = [
+  { key:"pv", label:"Solaire photovoltaïque", icon:"☀️", color:"#fbbf24", fixed:61, vc:0, cf:0.14, co2:30, land:1.0, w:0, s:0.70, min:0, max:220, step:10, init:20, warn:200, warnTxt:"Plus de 200 GW de PV en 2050 : rythme d'installation jamais atteint en France (hypothèse haute de RTE)." },
+  { key:"wind", label:"Éolien (terrestre & en mer)", icon:"🌬️", color:"#38bdf8", fixed:171, vc:0, cf:0.30, co2:12, land:1.4, w:0.10, s:0.15, min:0, max:140, step:10, init:20, warn:120, warnTxt:"Plus de 120 GW d'éolien : très forte présence dans les paysages et en mer, acceptabilité à construire." },
+  { key:"hydro", label:"Hydraulique & biomasse", icon:"💧", color:"#22d3ee", fixed:210, vc:0, cf:0.40, co2:20, land:0.4, w:0.85, s:0.40, min:0, max:30, step:5, init:25 },
+  { key:"nuclear", label:"Nucléaire (parc actuel prolongé + EPR2)", icon:"☢️", color:"#a78bfa", fixed:590, vc:0, cf:0.75, co2:6, land:0.1, w:0.85, s:0.70, min:0, max:70, step:5, init:20, warn:50, warnTxt:"Plus de 50 GW de nucléaire en 2050 : suppose de construire des réacteurs à un rythme jamais atteint depuis les années 1980 (limite du scénario RTE N03)." },
+  { key:"flex", label:"Flexibilités (batteries, STEP, effacement, interconnexions)", icon:"🔋", color:"#34d399", fixed:60, vc:0, cf:0, co2:0, land:0.05, w:0.60, s:0.60, min:0, max:60, step:5, init:0 },
+  { key:"h2", label:"Thermique décarboné de pointe (hydrogène, biométhane)", icon:"🧪", color:"#f472b6", fixed:50, vc:200, cf:0.04, co2:60, land:0.1, w:0.95, s:0.95, min:0, max:40, step:5, init:0 },
+  { key:"gas", label:"Centrales au gaz fossile", icon:"🔥", color:"#fb7185", fixed:60, vc:90, cf:0.30, co2:420, land:0.1, w:0.95, s:0.90, min:0, max:30, step:5, init:20 }
+];
+var RTE_FAMILIES = [
+  { max:0.001, name:"M0", txt:"100 % renouvelable en 2050, sortie complète du nucléaire" },
+  { max:0.20, name:"M1 / M23", txt:"renouvelables très majoritaires, nucléaire existant en fin de vie" },
+  { max:0.31, name:"N1", txt:"environ 1/4 de nucléaire, renouvelables majoritaires" },
+  { max:0.43, name:"N2", txt:"environ 1/3 de nucléaire" },
+  { max:1.01, name:"N03", txt:"environ 50 % de nucléaire, le scénario le plus nucléarisé de RTE" }
+];
+function rteFamily(st){
+  for(var i=0;i<RTE_FAMILIES.length;i++){ if(st.shareNuc < RTE_FAMILIES[i].max) return RTE_FAMILIES[i]; }
+  return RTE_FAMILIES[RTE_FAMILIES.length-1];
+}
+
+var POINTS = 25, MIX_POINTS = 60, HINT_COST = 10, ERROR_PENALTY_PTS = 5, ERROR_PENALTY_SEC = 45, TOTAL_SECONDS = 2700; // 45 minutes format Prepa
+
+// ================= ETAT GLOBAL =================
+var S = {
+  screen: "intro", team: "", roomIndex: 0, openDoc: null,
+  solved: {}, score: 100, hintsUsed: 0, errorsCount: 0, shownHint: null,
+  secondsLeft: TOTAL_SECONDS,
+  roomCodeInputs: ["","","","",""], masterOk: false, secretPos: [0,0,0,0,0],
+  finalDetail: "", drafts: {}, mix: null, mixTried: false, activeLeft: null, activeKey: null
+};
+
+// ================= SAUVEGARDE AUTOMATIQUE =================
+// Permet de reprendre la partie si l'onglet est rechargé ou fermé par erreur.
+var SAVE_KEY = "reboot2050_save_v2";
+function saveState(){
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch(e) {}
+}
+function loadState(){
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return;
+    var saved = JSON.parse(raw);
+    if(saved && saved.screen && saved.screen !== "intro"){
+      for(var k in saved){ if(Object.prototype.hasOwnProperty.call(saved,k)) S[k] = saved[k]; }
+      S.openDoc = null; S.activeLeft = null; S.activeKey = null;
+    }
+  } catch(e) {}
+}
+function clearSave(){
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function shuffle(arr){ var a = arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function normalize(s){ return String(s).toLowerCase().trim().replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a").replace(/[ùûü]/g,"u").replace(/ç/g,"c").replace(/[\s'.\-]/g,""); }
+function docHTML(c){ return c.replace(/\{\{(\w)\}\}/g, '<span class="hlet" title="Lettre dorée du mot secret">$1</span>'); }
+function pk(ri,pi){ return ri + "-" + pi; }
+function roomSolved(ri){ return ROOMS[ri].puzzles.every(function(_,pi){ return S.solved[pk(ri,pi)]; }); }
+
+function draft(key, p){
+  if(!S.drafts[key]){
+    S.drafts[key] = {
+      input:"", picked:[], links:{}, vf:[null,null,null,null], wheels:null,
+      shuffledWords: p && p.words ? shuffle(p.words) : [],
+      shuffledItems: p && p.items ? shuffle(p.items) : [],
+      shuffledRight: p && p.pairs ? shuffle(p.pairs.map(function(pr,i){ return {t:pr.right, k:i}; })) : []
+    };
+  }
+  return S.drafts[key];
+}
+
+function initWheels(d, len){
+  if(!d.wheels || d.wheels.length !== len){
+    d.wheels = [];
+    for(var i=0;i<len;i++) d.wheels.push(0);
+  }
+  return d.wheels;
+}
+
+function wheelsHTML(chars, pos, act, key, disabled){
+  var h = '<div class="wheels">';
+  for(var i=0;i<pos.length;i++){
+    h += '<div class="wheelcol"><button class="wbtn" data-act="'+act+'" data-key="'+key+'" data-i="'+i+'" data-dir="1"'+(disabled?" disabled":"")+'>▲</button>'+
+      '<div class="wface">'+chars[pos[i]]+'</div>'+
+      '<button class="wbtn" data-act="'+act+'" data-key="'+key+'" data-i="'+i+'" data-dir="-1"'+(disabled?" disabled":"")+'>▼</button></div>';
+  }
+  return h + '</div>';
+}
+
+function wheelString(chars, pos){ return pos.map(function(p){ return chars[p]; }).join(""); }
+
+// ================= RENDU UI =================
+var app = document.getElementById("app");
+
+function fmtTimer(){
+  var m = Math.floor(S.secondsLeft/60), s = S.secondsLeft%60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+function topbar(backToMap){
+  return '<div class="topbar">'+
+    (backToMap ? '<button class="backlink" data-act="map">← Retour Carte du Réseau</button>' : '<span class="badge cyan">⚡ MISSION RE:BOOT 2050 : ÉDITION PRÉPA</span>')+
+    '<div class="row">'+
+      '<span class="badge cyan">👥 '+esc(S.team)+'</span>'+
+      '<span class="badge emerald">⭐ '+S.score+' pts</span>'+
+      (S.errorsCount > 0 ? '<span class="badge rose" title="Erreurs commises">⚠️ '+S.errorsCount+' err.</span>' : '')+
+      '<span class="badge mono '+(S.secondsLeft<300?"alarm":"")+'" id="timer">⏱ '+fmtTimer()+'</span>'+
+    '</div></div>';
+}
+
+function renderIntro(){
+  document.body.className = "bg-intro";
+  app.innerHTML =
+  '<div class="center-screen"><div style="max-width:700px;width:100%;text-align:center">'+
+  '<div style="font-size:3.5rem;margin-bottom:8px">⚡</div>'+
+  '<h1 style="font-size:2.4rem">MISSION <span style="color:#22d3ee">RE:BOOT</span> 2050</h1>'+
+  '<p style="color:#67e8f9;font-weight:600;margin:6px 0 22px">Simulateur &amp; Escape Game Ingénieur : Énergies Renouvelables et Électronucléaire</p>'+
+  '<div class="card" style="text-align:left">'+
+  '<p style="font-size:.93rem;line-height:1.65;color:rgba(255,255,255,.88)"><b>Scénario :</b> Hiver 2050. Un blackout partiel paralyse le réseau français. Vous êtes l\'équipe d\'ingénieurs de crise dépêchée au Centre National de conduite du réseau. Pour réamorcer le pays, vous devez :</p>'+
+  '<ul style="margin:12px 0 14px 20px;font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.82)">'+
+    '<li><b>Désamorcer les 5 salles techniques</b> en croisant les rapports, les diagrammes de Sankey et vos calculs d\'ordres de grandeur.</li>'+
+    '<li><b>Chasser les 5 codes d\'accès inter-salles (3 chiffres par salle)</b> dissimulés dans les notes et mémos d\'archives à travers tout le complexe.</li>'+
+    '<li><b>Reconstruire le Mix Énergétique 2050 au Dispatch National</b> capable de survivre à la fois au bilan annuel, à une nuit d\'hiver anticyclonique (<i>Dunkelflaute</i>) et à un étiage estival.</li>'+
+  '</ul>'+
+  '<div class="row" style="margin:16px 0">'+
+    '<span class="badge cyan">⏱ Chrono : 45 min</span>'+
+    '<span class="badge amber">💡 Indice : -10 pts</span>'+
+    '<span class="badge rose">⚠️ Erreur : -5 pts &amp; -45 sec</span>'+
+  '</div>'+
+  '<div class="row" style="margin-top:18px"><input type="text" id="team" placeholder="Nom de votre trinôme / équipe..." /><button class="btn cyan" data-act="start">Initialiser le terminal →</button></div>'+
+  '</div></div></div>';
+  var inp = document.getElementById("team");
+  if(inp) inp.focus();
+}
+
+function renderMap(){
+  document.body.className = "bg-map";
+  var cards = ROOMS.map(function(r,ri){
+    var solved = roomSolved(ri);
+    var n = r.puzzles.filter(function(_,pi){ return S.solved[pk(ri,pi)]; }).length;
+    return '<button class="roomcard'+(solved?" done":"")+'" data-act="room" data-ri="'+ri+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<span style="font-size:1.8rem">'+(solved?"✅":r.icon)+'</span>'+
+        '<span class="badge '+(solved?"emerald":"")+'">'+n+'/'+r.puzzles.length+' verrous</span>'+
+      '</div>'+
+      '<h2 style="margin:10px 0 4px;font-size:1.08rem">'+r.title+'</h2>'+
+      '<p class="sub" style="font-size:.82rem">'+r.subtitle+'</p>'+
+      '<p style="font-size:.74rem;color:rgba(255,255,255,.55);margin-top:10px">'+(solved?"✔ Salle opérationnelle : Fouillez les dossiers pour les codes inter-salles !":"En attente de diagnostic...")+'</p></button>';
+  }).join("");
+  var allDone = ROOMS.every(function(_,ri){ return roomSolved(ri); });
+  var totalP = ROOMS.reduce(function(n,r){ return n+r.puzzles.length; },0)+1;
+  var doneC = ROOMS.reduce(function(n,r,ri){ return n+r.puzzles.filter(function(_,pi){ return S.solved[pk(ri,pi)]; }).length; },0)+(S.solved["mix"]?1:0);
+  app.innerHTML = '<div class="wrap">'+topbar(false)+
+    '<h1>🗺️ Synoptique du Réseau National</h1>'+
+    '<p style="color:rgba(255,255,255,.7);font-size:.88rem;margin:6px 0 20px">Progression globale : <b>'+doneC+'/'+totalP+'</b> systèmes rétablis. N\'oubliez pas de relever dans les textes les <b>5 codes inter-salles</b> et les <b>5 lettres dorées</b>.</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">'+
+    cards +
+    '<button class="roomcard final'+(allDone?"":" locked")+'" data-act="final">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:1.9rem">🎛️</span><span class="badge '+(allDone?"amber":"")+'">'+(allDone?"🔓 Accès Dispatch Autorisé !":"🔒 Déverrouillez d\'abord les 5 salles techniques")+'</span></div>'+
+    '<h2 style="margin:10px 0 4px;font-size:1.15rem">6. Dispatch National 2050 (Étape Finale)</h2>'+
+    '<p style="font-size:.85rem;color:rgba(255,255,255,.75)">Dimensionnez le mix électrique français de 2050 face aux stress-tests climatiques, puis entrez les codes d\'accès des 5 salles.</p></button>'+
+    '</div>'+
+    '<div style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:.75rem;color:rgba(255,255,255,.45)">💾 Partie sauvegardée automatiquement sur cet ordinateur.</span><button class="btn ghost" style="font-size:.75rem;padding:6px 12px" data-act="reset">Effacer la partie</button></div>'+
+    '</div>';
+}
+
+function puzzleHTML(p, ri, pi){
+  var key = pk(ri,pi), d = draft(key, p);
+  var solved = !!S.solved[key];
+  var body = "";
+  var fbOk = solved ? '<div class="fb ok"><b>✔ Verrou débloqué ! </b>'+p.explain+'</div>' : "";
+  if(p.kind === "code"){
+    var w = initWheels(d, p.answer.length);
+    body = '<p class="tag">🔐 Cadenas numérique ('+p.answer.length+' chiffres) : tournez les molettes puis validez</p>'+
+      wheelsHTML("0123456789", w, "wheel", key, solved)+
+      '<div class="row" style="margin-top:12px;justify-content:center"><button class="btn cyan" data-act="submit" data-key="'+key+'" '+(solved?"disabled":"")+'>Valider la combinaison</button></div>';
+  } else if(p.kind === "text"){
+    body = '<div class="row"><input type="text" id="pinput" data-key="'+key+'" placeholder="'+esc(p.placeholder||"Votre réponse...")+'" value="'+esc(d.input)+'" '+(solved?"disabled":"")+' /><button class="btn cyan" data-act="submit" data-key="'+key+'" '+(solved?"disabled":"")+'>Valider</button></div>';
+  } else if(p.kind === "usb"){
+    var pool = d.shuffledWords.map(function(wd){
+      var used = d.picked.indexOf(wd)>=0;
+      return '<button class="opt" style="width:auto;display:inline-block;margin-right:6px" data-act="pick" data-key="'+key+'" data-val="'+esc(wd)+'" '+(used||solved?"disabled":"")+' style="'+(used?"opacity:.3":"")+'">'+esc(wd)+'</button>';
+    }).join("");
+    var built = d.picked.map(function(wd,wi){
+      return '<button class="opt" style="width:auto;display:inline-block;margin-right:6px;border-color:#22d3ee;background:rgba(34,211,238,.15)" data-act="wremove" data-key="'+key+'" data-i="'+wi+'" '+(solved?"disabled":"")+'>'+esc(wd)+' ✕</button>';
+    }).join("");
+    body = '<p class="tag">💾 Secteurs mémoires récupérés :</p>'+
+      '<div style="margin-bottom:12px">'+pool+'</div>'+
+      '<p class="tag">Séquence assemblée (cliquez un mot pour le retirer) :</p>'+
+      '<div style="min-height:48px;border:1px dashed rgba(255,255,255,.25);border-radius:10px;padding:10px;background:rgba(255,255,255,.03)">'+(built||'<span style="color:rgba(255,255,255,.35);font-size:.85rem">Cliquez sur les mots ci-dessus dans le bon ordre...</span>')+'</div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="clear" data-key="'+key+'" '+(solved?"disabled":"")+'>Réinitialiser</button>'+
+      '<button class="btn cyan" data-act="usb-submit" data-key="'+key+'" '+(solved||d.picked.length<p.words.length?"disabled":"")+'>Compiler le firmware</button></div>';
+  } else if(p.kind === "order"){
+    var avail = d.shuffledItems.map(function(it){
+      var used = d.picked.indexOf(it)>=0;
+      return '<button class="opt" data-act="pick" data-key="'+key+'" data-val="'+esc(it)+'" '+(used||solved?"disabled":"")+' style="'+(used?"opacity:.28":"")+'">'+esc(it)+'</button>';
+    }).join("");
+    var seq = p.items.map(function(_,i){
+      return '<div class="opt" style="border-style:'+(d.picked[i]?"solid":"dashed")+';border-color:'+(d.picked[i]?"#22d3ee":"rgba(255,255,255,.2)")+';cursor:default"><span style="font-family:monospace;color:#67e8f9;font-weight:bold;margin-right:8px">#'+(i+1)+'</span>'+(d.picked[i]?esc(d.picked[i]):'<span style="color:rgba(255,255,255,.3)">Sélectionnez un élément à gauche</span>')+'</div>';
+    }).join("");
+    body = '<div class="grid2"><div><p class="tag">Éléments disponibles</p>'+avail+'</div><div><p class="tag">Ordre chronologique / décroissant</p>'+seq+
+      '<div class="row" style="margin-top:10px"><button class="btn ghost" data-act="clear" data-key="'+key+'" '+(solved?"disabled":"")+'>Effacer</button>'+
+      '<button class="btn cyan" data-act="order-submit" data-key="'+key+'" '+(solved||d.picked.length<p.items.length?"disabled":"")+'>Valider l\'ordre</button></div></div></div>';
+  } else if(p.kind === "pairs"){
+    var left = p.pairs.map(function(pr,i){
+      var linkedIdx = d.links[i];
+      var badge = linkedIdx !== undefined ? ' <span class="badge amber" style="font-size:.7rem;margin-left:6px">Lié à #'+(linkedIdx+1)+'</span>' : '';
+      return '<button class="opt'+(S.activeLeft===i&&S.activeKey===key?" sel":(linkedIdx!==undefined?" linked":""))+'" data-act="pl" data-key="'+key+'" data-i="'+i+'" '+(solved?"disabled":"")+'><b style="color:#a5f3fc">'+pr.left+'</b>'+badge+'</button>';
+    }).join("");
+    var right = d.shuffledRight.map(function(r, dispIdx){
+      var linkedLeft = Object.keys(d.links).find(function(l){ return d.links[l]===r.k; });
+      var tag = linkedLeft !== undefined ? '<span class="badge amber" style="font-size:.7rem;margin-right:6px">'+p.pairs[linkedLeft].left+'</span> ' : '<span style="color:#67e8f9;font-family:monospace;margin-right:6px">#'+(dispIdx+1)+'</span>';
+      return '<button class="opt'+(linkedLeft!==undefined?" linked":"")+'" data-act="pr" data-key="'+key+'" data-k="'+r.k+'" '+(solved?"disabled":"")+'>'+tag+esc(r.t)+'</button>';
+    }).join("");
+    body = '<p class="tag">Cliquez une installation à gauche, puis sa fiche descriptive à droite :</p><div class="grid2"><div>'+left+'</div><div>'+right+'</div></div>'+
+      '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="clear" data-key="'+key+'" '+(solved?"disabled":"")+'>Effacer les liens</button>'+
+      '<button class="btn cyan" data-act="pairs-submit" data-key="'+key+'" '+(solved||Object.keys(d.links).length<p.pairs.length?"disabled":"")+'>Valider les associations</button></div>';
+  } else if(p.kind === "vf"){
+    body = p.statements.map(function(st,i){
+      var v = d.vf[i];
+      return '<div class="vfbox"><p>'+esc(st)+'</p><div>'+
+        '<button class="vfbtn'+(v===true?" sel":"")+'" data-act="vf" data-key="'+key+'" data-i="'+i+'" data-v="1" '+(solved?"disabled":"")+'>VRAI</button> '+
+        '<button class="vfbtn'+(v===false?" sel":"")+'" data-act="vf" data-key="'+key+'" data-i="'+i+'" data-v="0" '+(solved?"disabled":"")+'>FAUX</button></div></div>';
+    }).join("") +
+    '<button class="btn cyan" data-act="vf-submit" data-key="'+key+'" '+(solved||d.vf.some(function(v){return v===null;})?"disabled":"")+'>Valider la séquence Vrai/Faux</button>';
+  }
+  return body + fbOk;
+}
+
+function renderRoom(){
+  document.body.className = "bg-room";
+  var room = ROOMS[S.roomIndex];
+  var puzzle = null, pi = -1;
+  room.puzzles.forEach(function(p,idx){ if(!S.solved[pk(S.roomIndex,idx)] && puzzle===null){ puzzle = p; pi = idx; } });
+  var done = puzzle === null;
+
+  var docsBtns = room.docs.map(function(dc){
+    return '<button class="docbtn" data-act="doc" data-id="'+dc.id+'"><span class="ic">'+dc.icon+'</span><span><b>'+dc.label+'</b><br><span style="font-size:.72rem;color:#94a3b8">Cliquez pour inspecter</span></span></button>';
+  }).join("");
+
+  var nSolved = room.puzzles.filter(function(_,idx){ return S.solved[pk(S.roomIndex,idx)]; }).length;
+  var pct = Math.round(nSolved/room.puzzles.length*100);
+
+  var pills = room.puzzles.map(function(_,idx){
+    var isS = S.solved[pk(S.roomIndex,idx)];
+    var isC = idx === pi;
+    return '<span class="pnav-pill '+(isS?"done":(isC?"curr":""))+'">'+(isS?"✔ ":"")+'Verrou '+(idx+1)+'</span>';
+  }).join("");
+
+  var puzzleCard = "";
+  if(done){
+    var prevExplanations = room.puzzles.map(function(p, idx){
+      return '<div class="fb ok" style="margin-top:8px;text-align:left"><b>✔ Verrou '+(idx+1)+' :</b> '+p.explain+'</div>';
+    }).join("");
+    puzzleCard = '<div class="card" style="text-align:center">'+
+      '<div style="font-size:2.6rem">🔓</div><h2 style="margin:8px 0;color:#6ee7b7">Tous les verrous de la salle sont désamorcés !</h2>'+
+      '<p style="font-size:.9rem;color:rgba(255,255,255,.8);max-width:620px;margin:0 auto 14px">⚠️ <b>Attention :</b> Le code de sécurité à 3 chiffres de cette salle (demandé au Dispatch Final) n\'est pas affiché gratuitement ici : il doit être déduit ou retrouvé dans les mémos croisés des dossiers techniques des 5 salles !</p>'+
+      prevExplanations +
+      '<div style="margin-top:18px"><button class="btn cyan" data-act="map">← Retourner à la carte du réseau</button></div></div>';
+  } else {
+    var key = pk(S.roomIndex, pi);
+    puzzleCard = '<div class="card" id="pcard">'+
+      '<div class="puzzles-nav">'+pills+'</div>'+
+      '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px">'+
+      '<p style="font-weight:600;line-height:1.6;white-space:pre-line;font-size:.96rem">'+esc(puzzle.q)+'</p>'+
+      '<button class="btn hint" data-act="hint" data-key="'+key+'">💡 Indice (-10 pts)</button></div>'+
+      (S.shownHint === key ? '<div class="hintbox"><b>Indice :</b> '+puzzle.hint+'</div>' : "")+
+      puzzleHTML(puzzle, S.roomIndex, pi)+'</div>';
+  }
+
+  app.innerHTML = '<div class="wrap">'+topbar(true)+
+    '<h1>'+room.icon+' '+room.title+'</h1><p class="sub">'+room.subtitle+'</p>'+
+    '<p class="story">'+room.story+'</p>'+
+    '<div class="progress"><div style="width:'+pct+'%"></div></div>'+
+    '<p class="tag">📂 Documents techniques &amp; Rapports disponibles dans la salle :</p><div class="docgrid">'+docsBtns+'</div>'+
+    puzzleCard+'</div>';
+
+  if(S.openDoc){
+    var dc = room.docs.find(function(x){ return x.id === S.openDoc; });
+    if(dc){
+      var ov = document.createElement("div");
+      ov.className = "modal-bg";
+      ov.innerHTML = '<div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:10px"><h3 style="color:#67e8f9">'+dc.icon+' '+dc.label+'</h3><button class="backlink" data-act="closedoc">Fermer ✕</button></div><div class="modal-body">'+docHTML(dc.content)+'</div></div>';
+      ov.addEventListener("click", function(e){ if(e.target === ov){ S.openDoc = null; renderRoom(); } });
+      app.appendChild(ov);
+    }
+  }
+}
+
+// Calcul multi-criteres du simulateur Dispatch 2050
+function mixStats(gw){
+  function twh(s){ return gw[s.key]*s.cf*8.76; } // GW x facteur de charge x 8760 h = TWh
+  var production = MIX_SOURCES.reduce(function(sm,s){ return sm + twh(s); },0);
+  // Stress-test 1 : soir d'hiver anticyclonique, -5 °C, sans soleil et presque sans vent (Dunkelflaute)
+  var winterPeak = MIX_SOURCES.reduce(function(sm,s){ return sm + gw[s.key]*s.w; },0);
+  // Stress-test 2 : canicule + etiage a 13h (nucleaire bride par la temperature des fleuves)
+  var summerCanicule = MIX_SOURCES.reduce(function(sm,s){ return sm + gw[s.key]*s.s; },0);
+  // Emissions en Mt CO2e/an (analyse de cycle de vie) : gCO2/kWh x TWh / 1000
+  var co2 = MIX_SOURCES.reduce(function(sm,s){ return sm + twh(s)*s.co2/1000; },0);
+  var interTWh = twh(MIX_SOURCES[0]) + twh(MIX_SOURCES[1]);
+  var shareInter = production > 0 ? interTWh / production : 0;
+  var shareNuc = production > 0 ? twh(MIX_SOURCES[3]) / production : 0;
+  // Cout complet en EUR/MWh = (couts fixes annualises + combustibles) / production
+  // + surcout reseau (raccordements, inertie, equilibrage) quand l'intermittent depasse 40 %
+  var gridSurcharge = shareInter > 0.40 ? (shareInter - 0.40) * 40 : 0;
+  var totalCost = MIX_SOURCES.reduce(function(sm,s){ return sm + gw[s.key]*s.fixed + twh(s)*s.vc; },0);
+  var avgCost = production > 0 ? totalCost/production + gridSurcharge : 0;
+  // Indice d'emprise au sol / paysage (unites arbitraires)
+  var landImpact = MIX_SOURCES.reduce(function(sm,s){ return sm + gw[s.key]*s.land; },0);
+  var warnings = MIX_SOURCES.filter(function(s){ return s.warn && gw[s.key] > s.warn; }).map(function(s){ return s.warnTxt; });
+  return { production:production, winterPeak:winterPeak, summerCanicule:summerCanicule, co2:co2, avgCost:avgCost, landImpact:landImpact, shareInter:shareInter, shareNuc:shareNuc, warnings:warnings };
+}
+
+function renderFinal(){
+  document.body.className = "bg-final";
+  var allRoomsDone = ROOMS.every(function(_,ri){ return roomSolved(ri); });
+  if(!allRoomsDone){
+    app.innerHTML = '<div class="wrap">'+topbar(true)+
+      '<div class="card" style="text-align:center;padding:40px 20px">'+
+      '<div style="font-size:3rem;margin-bottom:10px">🔒</div>'+
+      '<h2>Accès au Dispatch National Verrouillé</h2>'+
+      '<p style="color:rgba(255,255,255,.7);margin:10px 0 20px">Vous devez d\'abord déverrouiller l\'ensemble des 5 salles techniques sur la carte avant de pouvoir piloter le mix national 2050.</p>'+
+      '<button class="btn cyan" data-act="map">← Retourner à la carte</button></div></div>';
+    return;
+  }
+
+  var body = "";
+  if(S.solved["mix"]){
+    var locks = "";
+    if(!S.masterOk){
+      var codeInputsHTML = ROOMS.map(function(r, ri){
+        return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;text-align:center">'+
+          '<div style="font-size:1.3rem">'+r.icon+'</div>'+
+          '<div style="font-size:.78rem;color:#a5f3fc;font-weight:600;margin:4px 0 8px">'+r.title+'</div>'+
+          '<input type="text" maxlength="3" class="room-code-inp" data-ri="'+ri+'" value="'+esc(S.roomCodeInputs[ri]||"")+'" placeholder="3 chiffres" style="width:105px;text-align:center;font-family:monospace;font-size:1.15rem;letter-spacing:3px;padding:8px" />'+
+        '</div>';
+      }).join("");
+      locks = '<p class="tag" style="margin-top:16px">🔐 Étape Finale 1/2 : Les 5 Codes de Désamorçage Inter-Salles</p>'+
+        '<p style="font-size:.86rem;color:rgba(255,255,255,.78);margin-bottom:12px">Chaque salle possède un code à 3 chiffres dissimulé dans les mémos, transcriptions radio ou bordereaux des autres salles. Vous pouvez retourner consulter les dossiers sur la carte à tout moment.</p>'+
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px">'+codeInputsHTML+'</div>'+
+        '<div class="row" style="justify-content:center"><button class="btn emerald" data-act="master">Valider les 5 codes de sécurité</button></div>';
+    } else {
+      locks = '<div class="fb ok" style="margin-bottom:16px"><b>✔ Codes de sécurité des 5 salles authentifiés !</b> Ultime sécurité : le mot de passe fondateur.</div>'+
+        '<p class="tag">🔑 Étape Finale 2/2 : Le Mot Secret à 5 Lettres</p>'+
+        '<p style="font-size:.88rem;color:rgba(255,255,255,.78);margin-bottom:12px">Une lettre dorée brillait dans les dossiers de chacune des 5 salles. Alignez-les dans l\'ordre des salles (1 à 5) pour former le nom d\'une illustre physicienne et chimiste (double prix Nobel).</p>'+
+        wheelsHTML("ABCDEFGHIJKLMNOPQRSTUVWXYZ", S.secretPos, "secretwheel", "secret", false)+
+        '<div class="row" style="margin-top:14px;justify-content:center"><button class="btn emerald" data-act="secret">⚡ Rebrancher le Réseau National !</button></div>';
+    }
+    body = '<div class="card"><h2 style="color:#6ee7b7;margin-bottom:6px">✔ Mix Énergétique 2050 Validé !</h2>'+
+      '<p style="font-size:.84rem;color:rgba(255,255,255,.65)">Configuration retenue : '+esc(S.finalDetail)+'</p>'+
+      locks+'</div>';
+  } else {
+    if(!S.mix){
+      S.mix = {};
+      MIX_SOURCES.forEach(function(s){ S.mix[s.key] = s.init; });
+    }
+    var gw = S.mix;
+    var sliders = MIX_SOURCES.map(function(s){
+      var info = s.cf > 0 ? 'Fc '+Math.round(s.cf*100)+' %, hiver '+Math.round(s.w*100)+' %' : 'pas de production nette, hiver '+Math.round(s.w*100)+' %';
+      return '<div class="slider-row"><div class="lbl"><span><b>'+s.icon+' '+s.label+'</b> <span style="font-size:.74rem;color:#94a3b8">('+info+')</span></span><span class="badge mono cyan">'+gw[s.key]+' GW</span></div>'+
+        '<input type="range" min="'+s.min+'" max="'+s.max+'" step="'+s.step+'" value="'+gw[s.key]+'" data-act="mix" data-key="'+s.key+'" style="accent-color:'+s.color+'" /></div>';
+    }).join("");
+    var st = mixStats(gw);
+    var checks = getMixChecks(st);
+    var allOk = checks.every(function(c){ return c.ok; });
+    var checksHTML = checks.map(function(c){
+      return '<div class="check '+(c.ok?"ok":"ko")+'"><div style="display:flex;justify-content:space-between"><span>'+(c.ok?"✅":"❌")+' <b>'+c.label+'</b></span><span style="font-family:monospace;font-weight:bold">'+c.v+'</span></div><div style="font-size:.73rem;color:rgba(255,255,255,.6);margin-top:3px">Contrainte : '+c.t+'</div></div>';
+    }).join("");
+    body = '<div class="card" style="margin-bottom:16px"><p style="font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.85)"><b>Mission Dispatch 2050 :</b> Dimensionnez le parc électrique français (en GW installés) pour couvrir les besoins électrifiés de 2050. Votre mix doit passer <b>5 contraintes simultanées</b> : volume annuel, soir d\'hiver sans soleil ni vent (<i>Dunkelflaute</i>), canicule d\'été, budget carbone et coût complet du système.</p>'+
+      '<p style="font-size:.86rem;line-height:1.6;color:#fde68a;margin-top:8px">⚠️ <b>Il n\'existe pas UNE bonne réponse.</b> Des mix très différents passent les 5 tests : choisissez le vôtre et préparez-vous à défendre ses compromis (coût, emprise au sol, faisabilité industrielle, dépendances) lors du débrief. Notez votre configuration finale !</p>'+
+      '<p style="font-size:.74rem;color:rgba(255,255,255,.5);margin-top:6px">Modèle pédagogique simplifié : les valeurs sont des ordres de grandeur inspirés de RTE, Futurs énergétiques 2050.</p></div>'+
+      '<div class="grid2"><div class="card"><p class="tag">Puissances installées (GW)</p>'+sliders+'</div><div class="card"><p class="tag">Indicateurs &amp; Stress-Tests en temps réel</p><div id="checks-container">'+checksHTML+mixInfoHTML(st)+'</div>'+
+      '<button class="btn '+(allOk?"emerald":"cyan")+'" style="width:100%;margin-top:8px" data-act="mix-submit">'+(allOk?"⚡ Valider et Verrouiller ce Mix 2050 !":"Soumettre le Mix au Stress-Test")+'</button>'+
+      (S.mixTried && !allOk ? '<div class="fb ko" style="margin-top:10px"><b>✘ Stress-test échoué :</b> Corrigez les indicateurs en rouge avant de pouvoir verrouiller le dispatch.</div>' : "")+
+      '</div></div>';
+  }
+  app.innerHTML = '<div class="wrap">'+topbar(true)+'<h1>🎛️ Dispatch National : Simulateur 2050</h1><div style="height:14px"></div>'+body+'</div>';
+}
+
+function getMixChecks(st){
+  return [
+    { label:"1. Production annuelle", v:st.production.toFixed(0)+" TWh", ok:st.production>=600 && st.production<=750, t:"entre 600 et 750 TWh/an (électrification des usages, RTE retient ~645 TWh en référence)" },
+    { label:"2. Soir d'hiver sans soleil ni vent (Dunkelflaute)", v:st.winterPeak.toFixed(1)+" GW", ok:st.winterPeak>=85, t:"au moins 85 GW disponibles (PV = 0 %, éolien = 10 %, flexibilités limitées à 60 %)" },
+    { label:"3. Canicule d'été & étiage des fleuves", v:st.summerCanicule.toFixed(1)+" GW", ok:st.summerCanicule>=60, t:"au moins 60 GW disponibles à 13h" },
+    { label:"4. Budget climat (cycle de vie)", v:st.co2.toFixed(1)+" Mt CO2e", ok:st.co2<=15, t:"au plus 15 Mt CO2e/an" },
+    { label:"5. Coût complet du système", v:st.avgCost.toFixed(0)+" €/MWh", ok:st.avgCost<=95, t:"au plus 95 €/MWh (production + flexibilités + surcoût réseau)" }
+  ];
+}
+function mixInfoHTML(st){
+  var fam = rteFamily(st);
+  return '<div class="check" style="border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.04)"><div style="display:flex;justify-content:space-between"><span>🗺️ <b>Emprise au sol & paysage</b></span><span style="font-family:monospace;font-weight:bold">'+st.landImpact.toFixed(0)+' pts</span></div><div style="font-size:.73rem;color:rgba(255,255,255,.6);margin-top:3px">Indicateur à défendre lors du débrief (pas de seuil imposé)</div></div>'+
+    '<div class="check" style="border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.08)"><div style="display:flex;justify-content:space-between"><span>📚 <b>Famille RTE la plus proche</b></span><span style="font-family:monospace;font-weight:bold">'+fam.name+'</span></div><div style="font-size:.73rem;color:rgba(255,255,255,.6);margin-top:3px">Nucléaire : '+Math.round(st.shareNuc*100)+' % de la production, intermittent : '+Math.round(st.shareInter*100)+' % ('+fam.txt+')</div></div>'+
+    st.warnings.map(function(w){ return '<div class="check" style="border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.10);font-size:.8rem">⚠️ <b>Point de vigilance :</b> '+w+'</div>'; }).join("");
+}
+
+function renderVictory(){
+  document.body.className = "bg-victory";
+  var elapsedSec = TOTAL_SECONDS - S.secondsLeft;
+  var minutes = Math.floor(elapsedSec/60), secs = elapsedSec%60;
+  var st = S.mix ? mixStats(S.mix) : { production:0, co2:0, avgCost:0, winterPeak:0 };
+  app.innerHTML = '<div class="center-screen"><div style="max-width:760px;width:100%;text-align:center">'+
+    '<div style="font-size:3.5rem;margin-bottom:6px">🎉</div><h1>RÉSEAU 2050 REBRANCHÉ !</h1>'+
+    '<p style="color:#a7f3d0;font-size:1.02rem;margin:6px 0 18px">L\'équipe <b style="color:#fff">'+esc(S.team)+'</b> a rétabli le système énergétique français !</p>'+
+    '<div class="card victory-stats">'+
+      '<div><div class="num">'+S.score+'</div><div class="cap">Score Final</div></div>'+
+      '<div><div class="num">'+minutes+'m '+secs+'s</div><div class="cap">Temps Total</div></div>'+
+      '<div><div class="num">'+S.hintsUsed+'</div><div class="cap">Indices utilisés</div></div>'+
+      '<div><div class="num">'+S.errorsCount+'</div><div class="cap">Erreurs commises</div></div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:14px;text-align:left">'+
+      '<p class="tag">📊 Fiche de Synthèse de votre Mix 2050 (à conserver pour le Débriefing au tableau)</p>'+
+      '<p style="font-size:.9rem;margin-bottom:8px"><b>Puissances installées :</b> '+esc(S.finalDetail)+'</p>'+
+      '<div class="row">'+
+        '<span class="badge cyan">⚡ Prod : '+st.production.toFixed(0)+' TWh/an</span>'+
+        '<span class="badge emerald">🌍 Climat : '+st.co2.toFixed(1)+' Mt CO2</span>'+
+        '<span class="badge amber">💶 Coût : '+st.avgCost.toFixed(0)+' €/MWh</span>'+
+        '<span class="badge">❄️ Pointe Hiver : '+st.winterPeak.toFixed(0)+' GW</span>'+
+        (st.landImpact!==undefined ? '<span class="badge">🗺️ Emprise : '+st.landImpact.toFixed(0)+' pts</span>' : '')+
+        (st.shareNuc!==undefined ? '<span class="badge rose">📚 Famille RTE : '+rteFamily(st).name+'</span>' : '')+
+      '</div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:14px;text-align:left">'+
+      '<p style="color:#67e8f9;font-weight:700;margin-bottom:8px">🎓 Questions clés pour le Débriefing en classe (40 min)</p>'+
+      '<ul class="debrief">'+
+        '<li><b>Primaire vs Finale (Sankey) :</b> Pourquoi perd-on environ un tiers de l\'énergie primaire en France, et pourquoi les EnR thermiques (bois, PAC) pèsent-elles presque 2 fois plus lourd que les EnR électriques ?</li>'+
+        '<li><b>Physique &amp; ordres de grandeur :</b> Quel est l\'effet de la loi en v³ sur l\'éolien en mer ? Le solaire thermique récupère 3,5 fois plus d\'énergie par m² que le PV : est-ce pour autant « mieux » ?</li>'+
+        '<li><b>Comparez vos mix au tableau :</b> tous les groupes ont-ils la même famille RTE ? Comment chacun a-t-il passé le soir d\'hiver sans vent ? Qu\'avez-vous sacrifié : coût, emprise au sol, faisabilité industrielle ?</li>'+
+        '<li><b>Débat nucléaire :</b> ~130 ans de ressources identifiées à consommation constante, Bure, rythme de construction des EPR2 : quel rôle pour la 4e génération ? Comparez les stratégies France / Allemagne / Chine.</li>'+
+      '</ul>'+
+    '</div>'+
+    '<button class="btn ghost" style="margin-top:18px" data-act="reset">🔄 Nouvelle partie</button></div></div>';
+}
+
+function render(){
+  if(S.screen==="intro") renderIntro();
+  else if(S.screen==="map") renderMap();
+  else if(S.screen==="room") renderRoom();
+  else if(S.screen==="final") renderFinal();
+  else renderVictory();
+}
+
+// ================= LOGIQUE & PENALITES =================
+function solve(ri, pi){
+  var key = pk(ri,pi);
+  if(S.solved[key]) return;
+  S.solved[key] = true;
+  S.score += POINTS;
+  S.shownHint = null;
+}
+
+function applyPenalty(cardEl, customMsg){
+  S.errorsCount++;
+  S.score = Math.max(0, S.score - ERROR_PENALTY_PTS);
+  S.secondsLeft = Math.max(0, S.secondsLeft - ERROR_PENALTY_SEC);
+  var t = document.getElementById("timer");
+  if(t) t.textContent = "⏱ " + fmtTimer();
+  if(cardEl){
+    cardEl.classList.remove("shake");
+    void cardEl.offsetWidth;
+    cardEl.classList.add("shake");
+    var old = cardEl.querySelector(".fb.ko");
+    if(old) old.remove();
+    var box = document.createElement("div");
+    box.className = "fb ko";
+    box.innerHTML = "<b>✘ Verrou refusé (-"+ERROR_PENALTY_PTS+" pts et -"+ERROR_PENALTY_SEC+" sec). </b>" + customMsg;
+    cardEl.appendChild(box);
+  }
+}
+
+app.addEventListener("click", function(e){
+  var el = e.target.closest("[data-act]");
+  if(!el) return;
+  var act = el.getAttribute("data-act");
+
+  if(act==="start"){
+    var v = document.getElementById("team").value.trim();
+    if(v){ S.team = v; S.screen = "map"; render(); }
+    else { document.getElementById("team").focus(); }
+  }
+  else if(act==="map"){ S.screen = "map"; S.openDoc = null; S.shownHint = null; render(); }
+  else if(act==="room"){ S.roomIndex = parseInt(el.getAttribute("data-ri"),10); S.openDoc = null; S.shownHint = null; S.screen = "room"; render(); }
+  else if(act==="final"){ S.screen = "final"; render(); }
+  else if(act==="doc"){ S.openDoc = el.getAttribute("data-id"); renderRoom(); }
+  else if(act==="closedoc"){ S.openDoc = null; renderRoom(); }
+  else if(act==="hint"){
+    var k = el.getAttribute("data-key");
+    if(S.shownHint !== k){
+      S.shownHint = k;
+      S.hintsUsed++;
+      S.score = Math.max(0, S.score - HINT_COST);
+    }
+    renderRoom();
+  }
+  else if(act==="submit" || act==="order-submit" || act==="pairs-submit" || act==="vf-submit" || act==="usb-submit"){
+    var key = el.getAttribute("data-key");
+    var parts = key.split("-"); var ri = parseInt(parts[0],10), pi = parseInt(parts[1],10);
+    var p = ROOMS[ri].puzzles[pi];
+    var d = draft(key, p);
+    var ok = false;
+    if(p.kind==="code"){
+      var code = wheelString("0123456789", initWheels(d, p.answer.length));
+      if(p.tol){
+        var n = parseInt(code, 10);
+        ok = !isNaN(n) && Math.abs(n - parseFloat(p.answer)) <= p.tol;
+      } else {
+        ok = code === p.answer;
+      }
+    } else if(p.kind==="text"){
+      var inp = document.getElementById("pinput");
+      d.input = inp ? inp.value : "";
+      ok = normalize(d.input) === normalize(p.answer);
+    } else if(p.kind==="usb"){
+      ok = d.picked.length===p.words.length && normalize(d.picked.join(" ")) === normalize(p.answer);
+    } else if(p.kind==="order"){
+      ok = d.picked.length===p.items.length && d.picked.every(function(it,i){ return it===p.items[i]; });
+    } else if(p.kind==="pairs"){
+      ok = p.pairs.every(function(_,i){ return d.links[i]===i; });
+    } else if(p.kind==="vf"){
+      ok = d.vf.every(function(v,i){ return v===p.answers[i]; });
+    }
+    if(ok){ solve(ri,pi); renderRoom(); }
+    else {
+      var msg = (p.kind==="code") ? "Combinaison numérique inexacte. Vérifiez vos calculs et ordres de grandeur dans les dossiers."
+        : (p.kind==="usb") ? "Séquence de mots rejetée par le compilateur."
+        : (p.kind==="text") ? "Terme technique incorrect. Inspectez les dossiers de la salle."
+        : "Séquence ou association incorrecte. Concertation requise avant nouvel essai !";
+      applyPenalty(el.closest(".card"), msg);
+    }
+  }
+  else if(act==="wheel"){
+    var kw = el.getAttribute("data-key");
+    var partsW = kw.split("-");
+    var dw = draft(kw, ROOMS[parseInt(partsW[0],10)].puzzles[parseInt(partsW[1],10)]);
+    var i2 = parseInt(el.getAttribute("data-i"),10);
+    var dr2 = parseInt(el.getAttribute("data-dir"),10)||1;
+    dw.wheels[i2] = (dw.wheels[i2] + dr2 + 10) % 10;
+    renderRoom();
+  }
+  else if(act==="wremove"){
+    var kr = el.getAttribute("data-key");
+    draft(kr).picked.splice(parseInt(el.getAttribute("data-i"),10),1);
+    renderRoom();
+  }
+  else if(act==="secretwheel"){
+    var i4 = parseInt(el.getAttribute("data-i"),10);
+    var dr4 = parseInt(el.getAttribute("data-dir"),10)||1;
+    S.secretPos[i4] = (S.secretPos[i4] + dr4 + 26) % 26;
+    renderFinal();
+  }
+  else if(act==="pick"){
+    var keyp = el.getAttribute("data-key");
+    var val = el.getAttribute("data-val");
+    var dp = draft(keyp);
+    if(dp.picked.indexOf(val)<0){ dp.picked.push(val); }
+    renderRoom();
+  }
+  else if(act==="clear"){
+    var keyc = el.getAttribute("data-key");
+    var dc2 = draft(keyc);
+    dc2.picked = []; dc2.links = {};
+    renderRoom();
+  }
+  else if(act==="pl"){
+    S.activeLeft = parseInt(el.getAttribute("data-i"),10);
+    S.activeKey = el.getAttribute("data-key");
+    renderRoom();
+  }
+  else if(act==="pr"){
+    var keyr = el.getAttribute("data-key");
+    if(S.activeLeft!==null && S.activeKey===keyr){
+      var dl = draft(keyr);
+      dl.links[S.activeLeft] = parseInt(el.getAttribute("data-k"),10);
+      S.activeLeft = null;
+    }
+    renderRoom();
+  }
+  else if(act==="vf"){
+    var keyv = el.getAttribute("data-key");
+    var dv = draft(keyv);
+    dv.vf[parseInt(el.getAttribute("data-i"),10)] = el.getAttribute("data-v")==="1";
+    renderRoom();
+  }
+  else if(act==="mix-submit"){
+    S.mixTried = true;
+    var st3 = mixStats(S.mix);
+    var checks3 = getMixChecks(st3);
+    if(checks3.every(function(c){ return c.ok; })){
+      S.finalDetail = MIX_SOURCES.map(function(s){ return s.label+" : "+S.mix[s.key]+" GW"; }).join(" | ");
+      S.solved["mix"] = true;
+      S.score += MIX_POINTS;
+      renderFinal();
+    } else {
+      applyPenalty(el.closest(".card"), "Votre mix énergétique ne respecte pas les 5 contraintes simultanées.");
+    }
+  }
+  else if(act==="master"){
+    var inps = app.querySelectorAll(".room-code-inp");
+    inps.forEach(function(inp){
+      var idx = parseInt(inp.getAttribute("data-ri"),10);
+      S.roomCodeInputs[idx] = inp.value.trim();
+    });
+    var wrongRooms = [];
+    ROOMS.forEach(function(r, idx){
+      if(S.roomCodeInputs[idx] !== r.code) wrongRooms.push(idx+1);
+    });
+    if(wrongRooms.length === 0){
+      S.masterOk = true;
+      S.score += 30;
+      renderFinal();
+    } else {
+      applyPenalty(el.closest(".card"), "Code(s) erroné(s) pour la ou les salle(s) n° " + wrongRooms.join(", ") + ". Fouillez les mémos croisés dans les dossiers !");
+    }
+  }
+  else if(act==="secret"){
+    if(wheelString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", S.secretPos) === "CURIE"){
+      S.score += 30;
+      S.screen = "victory";
+      render();
+    } else {
+      applyPenalty(el.closest(".card"), "Mot secret incorrect. Retournez inspecter les 5 lettres dorées dans les dossiers des salles 1 à 5.");
+    }
+  }
+  else if(act==="reset"){
+    if(S.screen !== "victory" && !window.confirm("Effacer définitivement la partie en cours ?")) return;
+    clearSave();
+    S = {
+      screen:"intro", team:"", roomIndex:0, openDoc:null, solved:{}, score:100, hintsUsed:0, errorsCount:0, shownHint:null,
+      secondsLeft:TOTAL_SECONDS, roomCodeInputs:["","","","",""], masterOk:false, secretPos:[0,0,0,0,0],
+      finalDetail:"", drafts:{}, mix:null, mixTried:false, activeLeft:null, activeKey:null
+    };
+    render();
+  }
+});
+
+// Sauvegarde apres chaque action (ce listener s'execute apres le precedent)
+app.addEventListener("click", function(){ saveState(); });
+
+app.addEventListener("input", function(e){
+  if(e.target.id==="pinput"){
+    var key = e.target.getAttribute("data-key");
+    draft(key).input = e.target.value;
+  }
+  else if(e.target.classList.contains("room-code-inp")){
+    var idx = parseInt(e.target.getAttribute("data-ri"),10);
+    S.roomCodeInputs[idx] = e.target.value.trim();
+  }
+  else if(e.target.getAttribute("data-act")==="mix"){
+    var mk = e.target.getAttribute("data-key");
+    S.mix[mk] = parseInt(e.target.value,10);
+    var gw2 = S.mix, st2 = mixStats(gw2);
+    var idx2 = MIX_SOURCES.findIndex(function(s){ return s.key===mk; });
+    var badges = app.querySelectorAll(".slider-row .badge");
+    if(badges[idx2]) badges[idx2].textContent = gw2[mk]+" GW";
+    var checksCont = document.getElementById("checks-container");
+    var checks = getMixChecks(st2);
+    if(checksCont){
+      checksCont.innerHTML = checks.map(function(c){
+        return '<div class="check '+(c.ok?"ok":"ko")+'"><div style="display:flex;justify-content:space-between"><span>'+(c.ok?"✅":"❌")+' <b>'+c.label+'</b></span><span style="font-family:monospace;font-weight:bold">'+c.v+'</span></div><div style="font-size:.73rem;color:rgba(255,255,255,.6);margin-top:3px">Contrainte : '+c.t+'</div></div>';
+      }).join("") + mixInfoHTML(st2);
+    }
+    saveState();
+    var btn = app.querySelector('[data-act="mix-submit"]');
+    if(btn){
+      var all2 = checks.every(function(c){ return c.ok; });
+      btn.className = "btn "+(all2?"emerald":"cyan");
+      btn.textContent = all2 ? "⚡ Valider et Verrouiller ce Mix 2050 !" : "Soumettre le Mix au Stress-Test";
+    }
+  }
+});
+
+app.addEventListener("keydown", function(e){
+  if(e.key==="Enter" && e.target.id==="pinput"){
+    var key = e.target.getAttribute("data-key");
+    var btn = app.querySelector('[data-act="submit"][data-key="'+key+'"]');
+    if(btn && !btn.disabled) btn.click();
+  }
+  if(e.key==="Enter" && e.target.id==="team"){
+    var b = app.querySelector('[data-act="start"]'); if(b) b.click();
+  }
+  if(e.key==="Escape" && S.openDoc){ S.openDoc = null; if(S.screen==="room") renderRoom(); }
+});
+
+// ================= TIMER =================
+setInterval(function(){
+  if(S.screen==="intro" || S.screen==="victory") return;
+  if(S.secondsLeft>0) S.secondsLeft--;
+  var t = document.getElementById("timer");
+  if(t){
+    t.textContent = S.secondsLeft > 0 ? "⏱ " + fmtTimer() : "⏱ Temps écoulé : terminez la salle en cours";
+    t.className = "badge mono" + (S.secondsLeft<300 ? " alarm" : "");
+  }
+  if(S.secondsLeft % 5 === 0) saveState();
+}, 1000);
+
+loadState();
+render();
+</script>
+</body>
+</html>
